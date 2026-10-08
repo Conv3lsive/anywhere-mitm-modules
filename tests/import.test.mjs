@@ -54,6 +54,8 @@ test("the Spotify snapshot trial imports separately with its own ad and network 
   assert.deepEqual(links, ["modules/spotify-snapshot.amrs", "routing/spotify-snapshot-ads.arrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/" + path));
   assert.match(elements.message.textContent, /Disable other Spotify/);
   assert.match(elements.message.textContent, /unverified/);
+  const defaults = new URL(page("?module=spotify-snapshot").open.href).searchParams.getAll("link");
+  assert.ok(defaults.every(link => link.includes("/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/")));
 });
 
 test("earlier pinned links keep importing the original three modules", () => {

@@ -21,6 +21,9 @@ Install [Anywhere](https://github.com/NodePassProject/Anywhere), then open an
 Optional: **[Add Spotify Ad Block Trial](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify-adblock&ref=9dc12435a05ea2b4d2d9d28fe435a2304638aa15)**
 for a separate playback comparison. Read its setup instructions below.
 
+Optional: **[Add Spotify Snapshot Trial](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify-snapshot&ref=d3fc27488eaa48e91a7ef39a6cf464c142ab72d6)**
+to test an alternative playback configuration. Enable only one Spotify MITM trial.
+
 Quick-add links use a fixed commit. Refreshing these subscriptions keeps the
 same reviewed code. The import page has no external scripts or analytics.
 
@@ -165,6 +168,13 @@ Readable code: [account and UI settings](scripts/spotify-adblock.js),
 
 ### Spotify Snapshot Trial
 
+[Quick add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify-snapshot&ref=d3fc27488eaa48e91a7ef39a6cf464c142ab72d6)
+imports the MITM trial, **Spotify Snapshot Ads**, and **Spotify Network**.
+For manual import, copy these subscription URLs:
+[MITM module](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/modules/spotify-snapshot.amrs),
+[ad routing](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/routing/spotify-snapshot-ads.arrs),
+[proxy routing](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/routing/spotify-network.arrs).
+
 An experimental Spotify playback profile that sets Premium account attributes,
 removes selected Free/trial markers, and replaces resolved playback assignments
 with a fixed configuration snapshot. It adds `player-license-v2`, removes
@@ -219,7 +229,8 @@ subscription or guarantee access to paid tracks, downloads, or audio quality.
 
 The three primary modules are pinned to commit
 `be99056a6233fe2a3a1ae0d05625a4d5c50f4763`; the optional Spotify trial is pinned
-to `9dc12435a05ea2b4d2d9d28fe435a2304638aa15`. The scripts are
+to `9dc12435a05ea2b4d2d9d28fe435a2304638aa15`, and the Snapshot Trial is pinned
+to `d3fc27488eaa48e91a7ef39a6cf464c142ab72d6`. The scripts are
 embedded in each `.amrs` file and are also available in this repository for
 inspection. There are no automatic upstream script updates.
 
@@ -228,6 +239,8 @@ For subscriptions that follow this repository's future changes, use:
 - [YouTube — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/youtube.amrs)
 - [Spotify Premium — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/spotify.amrs)
 - [Spotify Ad Block Trial — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/spotify-adblock.amrs)
+- [Spotify Snapshot Trial — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/spotify-snapshot.amrs)
+- [Spotify Snapshot Ads — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/routing/spotify-snapshot-ads.arrs)
 - [Spotify ad blocking — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/routing/spotify-reject.arrs)
 - [Spotify proxy routing — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/routing/spotify-network.arrs)
 - [SoundCloud — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/soundcloud.amrs)
