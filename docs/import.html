@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>Add Anywhere Modules</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { max-width: 560px; margin: 10vh auto; padding: 24px; line-height: 1.6; }
+    h1 { line-height: 1.2; font-size: 32px; }
+    a { color: #538ef7; }
+    .button { display: inline-block; padding: 12px 22px; border-radius: 12px; background: #2363da; color: white; text-decoration: none; font-weight: 600; }
+    .url { overflow-wrap: anywhere; font-size: 13px; }
+    .note { opacity: .75; }
+  </style>
+</head>
+<body>
+  <h1 id="title">Add Anywhere Modules</h1>
+  <p id="message">Open these MITM rule sets in Anywhere.</p>
+  <p><a id="open" class="button" hidden>Open in Anywhere</a></p>
+  <p class="note">If the app does not open, copy a subscription URL below into Anywhere's MITM subscription screen.</p>
+  <div id="urls"></div>
+  <p><a href="https://github.com/Conv3lsive/anywhere-mitm-modules">View modules and setup instructions</a></p>
+  <noscript>Enable JavaScript for the import button, or copy a subscription URL from the repository README.</noscript>
+  <script>
+    (() => {
+      const modules = {
+        youtube: "YouTube Ad Block & Playback",
+        "spotify-lyrics": "Spotify Lyrics Translation",
+        soundcloud: "SoundCloud Go+ Configuration"
+      };
+      const query = new URLSearchParams(location.search);
+      const ref = query.get("ref") || "ffa77ba7eb57701a16b79beb1d6c4393610ae7fe";
+      const selected = query.get("module") || "all";
+      if (!/^[a-f0-9]{40}$/.test(ref) || (selected !== "all" && !Object.hasOwn(modules, selected))) {
+        document.getElementById("message").textContent = "Invalid module or version. Use an import link from the repository README.";
+        return;
+      }
+      const ids = selected === "all" ? Object.keys(modules) : [selected];
+      document.getElementById("title").textContent = selected === "all" ? "Add All Three Modules" : modules[selected];
+      const links = ids.map(id => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + ref + "/modules/" + id + ".amrs");
+      const open = document.getElementById("open");
+      open.href = "anywhere://add-rule-set?" + links.map(link => "link=" + encodeURIComponent(link)).join("&");
+      open.hidden = false;
+      for (let i = 0; i < links.length; i++) {
+        const item = document.createElement("p");
+        item.className = "url";
+        const name = document.createElement("strong");
+        name.textContent = modules[ids[i]];
+        const url = document.createElement("a");
+        url.href = links[i];
+        url.textContent = links[i];
+        item.append(name, document.createElement("br"), url);
+        document.getElementById("urls").append(item);
+      }
+    })();
+  </script>
+</body>
+</html>
