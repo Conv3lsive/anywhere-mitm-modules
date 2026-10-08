@@ -11,11 +11,11 @@ Install [Anywhere](https://github.com/NodePassProject/Anywhere), then open an
 
 | Module | What it does | Quick add | Subscription |
 | --- | --- | --- | --- |
-| **YouTube Ad Block & Playback** | Removes supported ads; enables picture-in-picture and background playback flags. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=youtube&ref=d3fc27488eaa48e91a7ef39a6cf464c142ab72d6) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/modules/youtube.amrs) |
-| **Spotify Premium** | Enables Premium playback controls, removes trial restrictions, and blocks selected ads. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify&ref=d3fc27488eaa48e91a7ef39a6cf464c142ab72d6) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/modules/spotify-snapshot.amrs) |
-| **SoundCloud Go+ Configuration** | Sets local Go+ plan and playback feature flags for the iOS app. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=soundcloud&ref=d3fc27488eaa48e91a7ef39a6cf464c142ab72d6) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/modules/soundcloud.amrs) |
+| **YouTube Ad Block & Playback** | Removes supported ads; enables picture-in-picture and background playback flags. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=youtube&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/modules/youtube.amrs) |
+| **Spotify Premium** | Enables Premium playback controls, removes trial restrictions, and blocks selected ads. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/modules/spotify.amrs) |
+| **SoundCloud Go+ Configuration** | Sets local Go+ plan and playback feature flags for the iOS app. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=soundcloud&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/modules/soundcloud.amrs) |
 
-**[Add all three](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=all&ref=d3fc27488eaa48e91a7ef39a6cf464c142ab72d6)**
+**[Add all three](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=all&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4)**
 
 Quick-add links use a fixed commit. Refreshing these subscriptions keeps the
 same reviewed code. The import page has no external scripts or analytics.
@@ -75,8 +75,8 @@ in again after first enabling the module to refresh cached customization.
 Enable only one Spotify MITM module; remove older Spotify sets when migrating.
 
 Manual routing subscriptions:
-[Spotify Ads](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/routing/spotify-snapshot-ads.arrs),
-[Spotify Network](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/routing/spotify-network.arrs).
+[Spotify Ads](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/routing/spotify-reject.arrs),
+[Spotify Network](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/routing/spotify-network.arrs).
 
 | Option | Default | Use |
 | --- | --- | --- |
@@ -122,7 +122,7 @@ subscription or guarantee access to paid tracks, downloads, or audio quality.
 ## Versions and integrity
 
 The quick-add links pin all modules to commit
-`d3fc27488eaa48e91a7ef39a6cf464c142ab72d6`. Scripts and configuration data are
+`3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4`. Scripts and configuration data are
 embedded in each `.amrs` file and are also available in this repository for
 inspection. There are no automatic upstream script updates.
 

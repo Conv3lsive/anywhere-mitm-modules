@@ -27,6 +27,9 @@ test("quick add creates the documented Anywhere deep link for a pinned module", 
   assert.equal(elements.open.hidden, false);
   assert.equal(elements.urls.children.length, 3);
   assert.match(elements.message.textContent, /select your proxy/);
+  assert.match(elements.message.textContent, /Playback confirmed by a user/);
+  const defaults = new URL(page("?module=spotify").open.href).searchParams.getAll("link");
+  assert.deepEqual(defaults, ["modules/spotify.amrs", "routing/spotify-reject.arrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/" + path));
 });
 
 test("add all carries three MITM modules and two Spotify routing helpers", () => {
