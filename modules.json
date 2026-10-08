@@ -141,5 +141,75 @@
         "[true, false]"
       ]
     ]
+  },
+  {
+    "id": "spotify-snapshot",
+    "name": "Spotify Snapshot Trial",
+    "description": "Experimental Spotify Premium playback flags with an optional fixed playback configuration and feed ad filtering.",
+    "hostnames": [
+      "spclient.wg.spotify.com",
+      "spotify.com"
+    ],
+    "rules": [
+      [
+        0,
+        2,
+        "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/user-customization-service/v1/customize(?:\\?|$)",
+        "If-None-Match"
+      ],
+      {
+        "phase": 0,
+        "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:(?:gabo-receiver-service|pendragon|pam-view-service)(?:[/?]|$)|[^#]*37i9dQZF1EYkqdzj48dyYq)",
+        "scripts": [
+          "scripts/spotify-snapshot-services.js"
+        ]
+      },
+      {
+        "phase": 1,
+        "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:bootstrap/v1/bootstrap|user-customization-service/v1/customize)(?:\\?|$)",
+        "scripts": [
+          "scripts/spotify-snapshot.js"
+        ],
+        "bindings": {
+          "AML_CONFIG_DATA": "data/spotify-amlabort-config.json"
+        }
+      },
+      {
+        "phase": 1,
+        "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:browsita/v\\d+/browse|casita/v\\d+/home/default|scrollsita/v\\d+/scroll/spotify)(?:[/?]|$)",
+        "scripts": [
+          "scripts/spotify-snapshot-feeds.js"
+        ]
+      }
+    ],
+    "parameters": [
+      [
+        1,
+        0,
+        "applyRewrites",
+        "Apply module changes",
+        "Turn off to compare HTTPS interception with account, service, and feed changes disabled. Cache-validator removal remains active.",
+        "true",
+        "[true, false]"
+      ],
+      [
+        1,
+        0,
+        "replaceConfiguration",
+        "Replace playback configuration",
+        "Use the fixed configuration snapshot. Turn off to compare account flags alone; sign in again after changing this option.",
+        "true",
+        "[true, false]"
+      ],
+      [
+        1,
+        0,
+        "filterFeedAds",
+        "Filter feed advertisements",
+        "Optional structural filtering for supported search, home, and scroll responses. Disabled for the first playback test.",
+        "false",
+        "[false, true]"
+      ]
+    ]
   }
 ]

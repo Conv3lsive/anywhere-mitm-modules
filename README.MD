@@ -1,7 +1,7 @@
 # Anywhere MITM Modules
 
 Three self-contained MITM modules for YouTube, Spotify, and SoundCloud.
-An optional Spotify Ad Block Trial provides a separate playback comparison.
+Two optional Spotify trials provide separate playback comparisons.
 Readable JavaScript lives in [`scripts/`](scripts/); the `.amrs` subscriptions
 embed the code, so they never download scripts from another repository.
 
@@ -162,6 +162,50 @@ local configuration; server-controlled features are not guaranteed.
 The trial is installed separately and is excluded from **Add all three**.
 Readable code: [account and UI settings](scripts/spotify-adblock.js),
 [service responses](scripts/spotify-adblock-services.js).
+
+### Spotify Snapshot Trial
+
+An experimental Spotify playback profile that sets Premium account attributes,
+removes selected Free/trial markers, and replaces resolved playback assignments
+with a fixed configuration snapshot. It adds `player-license-v2`, removes
+`on-demand-trial` and `smart-shuffle`, and removes the bootstrap trial wrapper.
+The default snapshot contains 875 assignments after exclusions and replaces
+all existing assignments. This can change UI and features beyond playback.
+
+**Setup for the first test:**
+
+1. Disable other Spotify MITM sets, including **Spotify Premium**, **Spotify Ad
+   Block Trial**, and **Spotify Lyrics Translation**. Disable the older
+   **Spotify Ads & Diagnostics** routing set.
+2. Enable **Spotify Snapshot Trial**. Keep **Spotify Snapshot Ads** on **REJECT**
+   and **Spotify Network** on the same fixed proxy used for ordinary playback.
+   Use Rule mode and leave the built-in Spotify routing set on Default.
+3. Keep streaming quality on **Normal** and **Block QUIC: Automatic**. Sign out
+   and sign in again to refresh customization, then retry the same track.
+
+| Option | Default | Use |
+| --- | --- | --- |
+| **Apply module changes** | On | Account, service, and optional feed changes. Turn off for a comparison without these mutations; customization cache-validator removal remains active. |
+| **Replace playback configuration** | On | Use the fixed assignment snapshot. If playback fails, turn off, sign in again, and retry to compare account changes alone. |
+| **Filter feed advertisements** | Off | Optional structural filtering of supported search, home, and scroll protobuf fields. Leave off for the first playback test. |
+
+Selected Gabo requests receive an empty 200 response; selected Pendragon,
+regional plan-view, and AI DJ requests receive a local 403 response.
+The separate routing helper rejects `aet.spotify.com` and its subdomains.
+Artist/album URLs are left unchanged. The scripts make no extra network
+requests, and unsupported responses are retained.
+
+This trial has not been verified on Spotify 9.1.88.2209 in Anywhere. It is
+installed separately and excluded from **Add all three**. Premium/offline
+attributes remain local flags; server-controlled features are not guaranteed.
+To compare HTTPS interception without script changes, turn off **Apply module
+changes**, disable **Spotify Snapshot Ads**, sign in again, and retry. To stop
+the experiment, disable the entire trial and its ad routing set.
+
+Readable files: [account rewrites](scripts/spotify-snapshot.js),
+[service responses](scripts/spotify-snapshot-services.js),
+[optional feed filtering](scripts/spotify-snapshot-feeds.js), and
+[configuration data](data/spotify-amlabort-config.json).
 
 ### SoundCloud Go+ Configuration
 

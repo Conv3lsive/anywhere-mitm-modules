@@ -10,6 +10,7 @@ tests, not a guarantee of safety or a live compatibility test of the target apps
 | YouTube | None. A matching CDN request may receive a redirect within `googlevideo.com`. | Bounded ad-classification identifiers in Anywhere's in-memory store. |
 | Spotify Premium | None. Artist/album request URLs may be rewritten within the same Spotify API host. | None. |
 | Spotify Ad Block Trial | None. Selected service requests can receive local synthetic 200 responses. | None. |
+| Spotify Snapshot Trial | None. Selected service requests receive local 200/403 responses. | None. |
 | SoundCloud | None. | None. |
 
 All current scripts process responses locally. They do not send intercepted
@@ -55,6 +56,34 @@ service paths to endpoint boundaries. Its optional service blocking includes
 offline and token-related endpoints, so it can affect functionality beyond ads.
 It is disabled as a group using **Block extra service endpoints**. Compatibility
 with Spotify 9.1.88.2209 and recovery from playback failures are unverified.
+
+The Spotify Snapshot Trial references six Amlabort files pinned to commit
+`f34e210c0cb092690296925ba08825dc6d2fb846`. The downloaded account provider,
+Gabo responder, and three feed providers were inspected. No active extra
+HTTP requests or credential exfiltration were found. The account provider's
+bundled protobuf.js runtime contains code-generation/fetch helpers, but its
+active transformation path does not use outbound fetches. None of that
+runtime or the original provider code is included in the published trial.
+
+The independent implementation uses Anywhere's native protobuf codec and
+embeds extracted static configuration data at build time. The data consists
+of feature scopes/names, scalar values, and experiment-policy metadata; it
+contains no account authorization tokens. Its snapshot replaces all live
+assignments with 875 retained records. This is a substantial behavioral
+change, with a separate switch to retain live assignments instead.
+
+The original home/scroll scripts retag byte patterns to wire type 7, which is
+not a valid protobuf wire type. The search script scans arbitrary byte offsets.
+The published optional feed filter instead removes the first matching
+top-level length-delimited field within the reviewed prefix; it never searches
+inside a payload or emits an invalid tag. Nested/new layouts may retain ads.
+Feed filtering is off by default. Local Gabo responses omit the original
+HTTP/3 advertisement and fabricated server/timing headers.
+
+**Apply module changes** disables account, service, and feed mutations, but
+does not disable the MITM host list, the native cache-validator deletion, or
+the separate ad routing set. Those distinctions matter when diagnosing the
+reported playback failure. The trial's live compatibility remains unverified.
 
 Original provider URLs follow mutable branches. A source owner or compromised
 account could replace that code after a review. This repository does not fetch

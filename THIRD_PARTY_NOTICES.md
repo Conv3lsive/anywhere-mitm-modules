@@ -44,3 +44,18 @@ following third-party material retains its own license and attribution.
   independent implementations using Anywhere's native API. The downloaded
   provider's codec and client entry points are not included or redistributed.
 - Reference fingerprints and review date are recorded in `provenance.json`.
+
+## Spotify Snapshot Trial behavior reference
+
+- Reference: [Amlabort/MY_clash](https://github.com/Amlabort/MY_clash), snapshot
+  `f34e210c0cb092690296925ba08825dc6d2fb846`, `files/surge/spot-NoAd.module`
+  and its five JavaScript providers.
+- The account provider is based on app2smile behavior and includes a
+  protobuf.js runtime. Neither that provider nor its bundled runtime is
+  redistributed here. The three native scripts are independent implementations.
+- `data/spotify-amlabort-config.json` contains extracted static configuration
+  values and exclusion keys, with the source commit recorded in the file.
+- Local adaptations: narrow endpoint boundaries, preserve unrelated wire
+  fields, use explicit synthetic HTTP responses, omit fabricated Gabo headers,
+  and replace byte-level feed patches with optional structural field removal.
+- Source URLs and downloaded hashes are recorded in `provenance.json`.

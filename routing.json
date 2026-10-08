@@ -23,5 +23,17 @@
       [2, "pscdn.co"],
       [2, "spoti.fi"]
     ]
+  },
+  {
+    "id": "spotify-snapshot-ads",
+    "name": "Spotify Snapshot Ads",
+    "description": "Reject the aet.spotify.com ad/tracking domain for the Spotify Snapshot Trial.",
+    "routing": 2,
+    "rules": [
+      [
+        2,
+        "aet.spotify.com"
+      ]
+    ]
   }
 ]

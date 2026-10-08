@@ -44,6 +44,11 @@
           "spotify-adblock": { name: "Spotify Ad Block Trial", files: [
             ["Spotify Ad Block Trial", "modules/spotify-adblock.amrs"],
             ["Spotify Network", "routing/spotify-network.arrs"]
+          ] },
+          "spotify-snapshot": { name: "Spotify Snapshot Trial", files: [
+            ["Spotify Snapshot Trial", "modules/spotify-snapshot.amrs"],
+            ["Spotify Snapshot Ads", "routing/spotify-snapshot-ads.arrs"],
+            ["Spotify Network", "routing/spotify-network.arrs"]
           ] }
         }),
         soundcloud: { name: "SoundCloud Go+ Configuration", files: [["SoundCloud Go+ Configuration", "modules/soundcloud.amrs"]] }
@@ -62,6 +67,9 @@
       }
       if (selected === "spotify-adblock") {
         document.getElementById("message").textContent = "Experimental alternative. Disable Spotify Premium, Spotify Lyrics Translation, and Spotify Ads & Diagnostics before testing. Keep Spotify Network on your selected proxy. Start with Normal audio quality.";
+      }
+      if (selected === "spotify-snapshot") {
+        document.getElementById("message").textContent = "Experimental playback test. Disable other Spotify MITM modules and Spotify Ads & Diagnostics. Keep Spotify Snapshot Ads on REJECT and Spotify Network on your existing proxy. Use Normal audio quality and sign in again. Playback on Spotify 9.1.88 is unverified.";
       }
       const open = document.getElementById("open");
       open.href = "anywhere://add-rule-set?" + links.map(link => "link=" + encodeURIComponent(link)).join("&");

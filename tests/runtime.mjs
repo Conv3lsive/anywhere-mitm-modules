@@ -62,7 +62,7 @@ export const protobuf = {
 export const str = (field, value) => ({ field, wire: 2, value: utf8.encode(value) });
 export const nested = (field, entries) => ({ field, wire: 2, value: protobuf.encode(entries) });
 
-export function runtime(id, parameters = {}, handler, phase = 1) {
+export function runtime(id, parameters = {}, handler, phase = 1, scriptFile) {
   const calls = [], logs = [], responses = [], store = new Map();
   const Anywhere = {
     codec: { utf8, protobuf, hex: { encode: bytes => Buffer.from(bytes).toString("hex") } },
@@ -79,7 +79,10 @@ export function runtime(id, parameters = {}, handler, phase = 1) {
   };
   const context = vm.createContext({ Anywhere, console: { log: () => {} }, Uint8Array, ArrayBuffer, DataView });
   const modules = JSON.parse(readFileSync(new URL("../modules.json", import.meta.url)));
-  const rule = modules.find(module => module.id === id).rules.find(rule => !Array.isArray(rule) && rule.phase === phase);
+  const rule = modules.find(module => module.id === id).rules.find(rule => !Array.isArray(rule) && rule.phase === phase && (!scriptFile || rule.scripts.includes(scriptFile)));
+  for (const [name, path] of Object.entries(rule.bindings || {})) {
+    context[name] = JSON.parse(readFileSync(new URL("../" + path, import.meta.url), "utf8"));
+  }
   const source = rule.scripts.map(path => readFileSync(new URL("../" + path, import.meta.url), "utf8")).join("\n");
   vm.runInContext(source, context, { timeout: 3000 });
   return {

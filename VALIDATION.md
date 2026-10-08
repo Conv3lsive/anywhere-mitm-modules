@@ -8,10 +8,16 @@ Validated locally on 2026-10-08:
   and customization attributes, unknown-field preservation, failure passthrough,
   URL/header rule scope, and routing helpers. The trial also covers its smaller
   attribute set, UI options, local service responses, and disabling service
-  blocking. 22 portable tests passed.
+  blocking. Snapshot tests cover account-key removals, all 875 assignments,
+  configuration and global mutation switches, service-response scope, structural
+  feed filtering, and embedded data integrity. 31 portable tests passed.
 - The native trial's account attributes and UI values matched the downloaded
   reference on four successful protobuf fixtures: bootstrap and customization,
   each with default and changed UI options. Field order was compared semantically.
+- The Snapshot Trial's account changes, deletions, and all 875 configuration
+  assignments matched the pinned Amlabort provider on successful bootstrap and
+  customization fixtures. Expiry timestamps were compared separately because
+  the reference and native code run at different instants.
 - Import-page tests passed for one module, all three modules with routing
   helpers, separate trial import, earlier pinned releases, and rejected input.
 - The official Anywhere `MITMRuleSetParser.swift`, fetched on the review date,
@@ -19,9 +25,11 @@ Validated locally on 2026-10-08:
   the embedded scripts. YouTube: 6 rules and 3 parameters; Spotify Premium:
   7 rules and no parameters; SoundCloud: 1 rule and no parameters.
   Spotify Ad Block Trial: 2 rules and 3 parameters.
+  Spotify Snapshot Trial: 4 rules and 3 parameters.
 - The official Anywhere `RoutingRuleParser.swift` accepted both `.arrs` files,
   including 5 rejection rules with an initial REJECT assignment and 4 network
   rules with an initial Default assignment.
+  The Snapshot Ads helper has 1 rejection rule with an initial REJECT assignment.
 
 The parser check used the official parser and its rule models with storage/icon
 support shims for a standalone macOS harness. These modules have not been tested

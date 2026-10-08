@@ -48,6 +48,14 @@ test("the Spotify trial imports separately with only its network routing helper"
   assert.ok(defaultLinks.every(link => link.includes("/9dc12435a05ea2b4d2d9d28fe435a2304638aa15/")));
 });
 
+test("the Spotify snapshot trial imports separately with its own ad and network sets", () => {
+  const elements = page("?module=spotify-snapshot&ref=" + sha);
+  const links = new URL(elements.open.href).searchParams.getAll("link");
+  assert.deepEqual(links, ["modules/spotify-snapshot.amrs", "routing/spotify-snapshot-ads.arrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/" + path));
+  assert.match(elements.message.textContent, /Disable other Spotify/);
+  assert.match(elements.message.textContent, /unverified/);
+});
+
 test("earlier pinned links keep importing the original three modules", () => {
   const old = "ffa77ba7eb57701a16b79beb1d6c4393610ae7fe";
   const links = new URL(page("?module=all&ref=" + old).open.href).searchParams.getAll("link");

@@ -42,6 +42,60 @@
       "downloaded_bytes": 9389,
       "reviewed_on": "2026-10-08",
       "reference_only": true
+    },
+    {
+      "module": "Spotify Snapshot Trial",
+      "component": "files/surge/spot-NoAd.module",
+      "source_url": "https://raw.githubusercontent.com/Amlabort/MY_clash/f34e210c0cb092690296925ba08825dc6d2fb846/files/surge/spot-NoAd.module",
+      "source_commit": "f34e210c0cb092690296925ba08825dc6d2fb846",
+      "downloaded_sha256": "55b727aa79ec0b1814d738b5522645ec8764a4d00df7e5814e378b843e193269",
+      "downloaded_bytes": 2396,
+      "reference_only": true
+    },
+    {
+      "module": "Spotify Snapshot Trial",
+      "component": "files/lpx/js/spot-proto-ev3.js",
+      "source_url": "https://raw.githubusercontent.com/Amlabort/MY_clash/f34e210c0cb092690296925ba08825dc6d2fb846/files/lpx/js/spot-proto-ev3.js",
+      "source_commit": "f34e210c0cb092690296925ba08825dc6d2fb846",
+      "downloaded_sha256": "f0206d8dc9b273557ae291c631e9eaac291fd43b35a128d9cb5660618857d959",
+      "downloaded_bytes": 394501,
+      "reference_only": true
+    },
+    {
+      "module": "Spotify Snapshot Trial",
+      "component": "files/lpx/js/spot-gabo.js",
+      "source_url": "https://raw.githubusercontent.com/Amlabort/MY_clash/f34e210c0cb092690296925ba08825dc6d2fb846/files/lpx/js/spot-gabo.js",
+      "source_commit": "f34e210c0cb092690296925ba08825dc6d2fb846",
+      "downloaded_sha256": "f8d0742e936a2e9d47408ba8a0f8b3e674569c46cb4587fc519f43dbc0d1a0e4",
+      "downloaded_bytes": 481,
+      "reference_only": true
+    },
+    {
+      "module": "Spotify Snapshot Trial",
+      "component": "files/lpx/js/spot-NoSearchAd.js",
+      "source_url": "https://raw.githubusercontent.com/Amlabort/MY_clash/f34e210c0cb092690296925ba08825dc6d2fb846/files/lpx/js/spot-NoSearchAd.js",
+      "source_commit": "f34e210c0cb092690296925ba08825dc6d2fb846",
+      "downloaded_sha256": "65ba36b1c44cf610a53502a370a369d2868037c25738e51cbd8769bec353f16d",
+      "downloaded_bytes": 1157,
+      "reference_only": true
+    },
+    {
+      "module": "Spotify Snapshot Trial",
+      "component": "files/lpx/js/spot-NoHomeAd.js",
+      "source_url": "https://raw.githubusercontent.com/Amlabort/MY_clash/f34e210c0cb092690296925ba08825dc6d2fb846/files/lpx/js/spot-NoHomeAd.js",
+      "source_commit": "f34e210c0cb092690296925ba08825dc6d2fb846",
+      "downloaded_sha256": "f6f0a7c59645df9f16be94009d6ea73df6982ec79db053ba0d7926384e56450b",
+      "downloaded_bytes": 401,
+      "reference_only": true
+    },
+    {
+      "module": "Spotify Snapshot Trial",
+      "component": "files/lpx/js/spot-NoScrollAd.js",
+      "source_url": "https://raw.githubusercontent.com/Amlabort/MY_clash/f34e210c0cb092690296925ba08825dc6d2fb846/files/lpx/js/spot-NoScrollAd.js",
+      "source_commit": "f34e210c0cb092690296925ba08825dc6d2fb846",
+      "downloaded_sha256": "4561ca939e803448f1bdb21d407580c5c1a60fe2bed7c9f7f811cb9e21870051",
+      "downloaded_bytes": 468,
+      "reference_only": true
     }
   ],
   "spotify_module_reference": {
@@ -51,5 +105,12 @@
   "spotify_adblock_module_reference": {
     "filename": "spotify.stoverride",
     "sha256": "7deb64d0f3351cf74e2a96d1b4f76ab72538de88329bee9df04f87a1a4ec1f73"
+  },
+  "spotify_snapshot_configuration": {
+    "file": "data/spotify-amlabort-config.json",
+    "raw_assignments": 878,
+    "exclusion_keys": 18,
+    "retained_assignments": 875,
+    "source_commit": "f34e210c0cb092690296925ba08825dc6d2fb846"
   }
 }

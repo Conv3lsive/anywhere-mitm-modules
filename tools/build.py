@@ -27,7 +27,9 @@ def artifacts():
         ]
         for rule in module["rules"]:
             if isinstance(rule, dict):
-                source = "\n".join((ROOT / path).read_text() for path in rule["scripts"])
+                bindings = ["const " + name + " = " + json.dumps(json.loads((ROOT / path).read_text()), separators=(",", ":")) + ";"
+                            for name, path in rule.get("bindings", {}).items()]
+                source = "\n".join([*bindings, *((ROOT / path).read_text() for path in rule["scripts"])])
                 lines.append("# Source: " + " + ".join(rule["scripts"]) + "\n")
                 lines.append(row([rule["phase"], 100, rule["pattern"], base64.b64encode(source.encode()).decode()]))
             else:
@@ -50,7 +52,7 @@ def main():
     parser.add_argument("--check", action="store_true", help="verify generated files and hashes without editing")
     args = parser.parse_args()
     generated = dict(artifacts())
-    sources = [ROOT / "modules.json", ROOT / "routing.json", *sorted((ROOT / "scripts").rglob("*.js"))]
+    sources = [ROOT / "modules.json", ROOT / "routing.json", *sorted((ROOT / "scripts").rglob("*.js")), *sorted((ROOT / "data").glob("*.json"))]
     hashed = {**{path: path.read_bytes() for path in sources}, **generated}
     sums = "".join(hashlib.sha256(data).hexdigest() + "  " + str(path.relative_to(ROOT)) + "\n"
                    for path, data in sorted(hashed.items()))
