@@ -1,129 +1,97 @@
 # Code review and data flows
 
-Reviewed on **2026-10-08**. This is a static review with synthetic response
-tests, not a guarantee of safety or a live compatibility test of the target apps.
+Reviewed on **2026-10-08**. Static review and synthetic response tests are
+supplemented by one user report of normal Spotify playback on 9.1.88.2209 in
+Anywhere. This does not establish compatibility across all devices or versions.
 
 ## Published modules
 
 | Module | Extra network requests | Data stored by its script |
 | --- | --- | --- |
 | YouTube | None. A matching CDN request may receive a redirect within `googlevideo.com`. | Bounded ad-classification identifiers in Anywhere's in-memory store. |
-| Spotify Premium | None. Artist/album request URLs may be rewritten within the same Spotify API host. | None. |
-| Spotify Ad Block Trial | None. Selected service requests can receive local synthetic 200 responses. | None. |
-| Spotify Snapshot Trial | None. Selected service requests receive local 200/403 responses. | None. |
+| Spotify Premium | None. Selected service requests receive local 200/403 responses. | None. |
 | SoundCloud | None. | None. |
 
-All current scripts process responses locally. They do not send intercepted
-tokens, cookies, lyrics, or response bodies to another service, and do not log
-response contents. Spotify Premium needs no API credentials and makes no Baidu
-requests. The earlier lyrics module remains available in its older pinned
-release; its data flows are documented in that release's security notes.
-
-The native scripts do not use `eval`, dynamic code downloads, telemetry, or
-general-purpose network helpers. The YouTube dependency is a bundled protobuf
-parser and response-transform core; its original client and HTTP adapters have
-been removed.
+Current scripts process responses locally. They do not send intercepted tokens,
+cookies, lyrics, or response bodies to another service, and do not log response
+contents. The native scripts do not use `eval`, dynamic code downloads,
+telemetry, or general-purpose network helpers. The YouTube dependency is a
+bundled protobuf parser and transform core with its original HTTP/client
+adapters removed.
 
 ## Source review
 
-The YouTube and SoundCloud input definitions were obtained from:
+YouTube and SoundCloud input definitions came from:
 
 - `https://yfamilys.com/stoverride/YouTubeAd.stoverride`
 - `https://yfamilys.com/stoverride/soundcloud.stoverride`
 
 Their JavaScript providers were reviewed separately. No active credential
-exfiltration was found in the downloaded YouTube or SoundCloud code.
+exfiltration was found in the downloaded code.
 
-Spotify Premium follows the user-provided `Spotify Premium.module.module`.
-Its three JavaScript providers are `spotify-proto.js`, `spotify-json.js`, and
-`spotify-qx-header.js` from `app2smile/rules`. The downloaded providers modify
-Spotify account attributes, request URLs, or a cache-validator header. No
-active credential exfiltration or extra HTTP requests were found in these
-scripts. The protobuf.js runtime has dynamic-code machinery; this repository
-uses Anywhere's native protobuf codec instead of including that runtime.
+Spotify Premium references six Amlabort files pinned to commit
+`f34e210c0cb092690296925ba08825dc6d2fb846`. The account provider, Gabo responder,
+and three feed providers were inspected. No active extra HTTP requests or
+credential exfiltration were found. The account provider's bundled protobuf.js
+runtime contains code-generation/fetch helpers, but its active transformation
+path does not use outbound fetches. That runtime and the original provider
+code are not included in the published module.
 
-The Spotify Ad Block Trial references the user-provided `spotify.stoverride`
-and its provider `https://kelee.one/Resource/JavaScript/Spotify/Spotify_remove_ads.js`.
-The 9,389-byte provider fetched on the review date contains a protobuf codec,
-ten account-attribute changes, and selected UI configuration changes. No extra
-HTTP requests, credential logging, or dynamic-code downloads were found in that
-snapshot. Its schema-specific encoder drops unknown fields; the independent
-native implementation in this repository preserves them and retains the input
-body on unsupported responses. The original provider code is not redistributed.
+The independent native implementation embeds static configuration data at
+build time. This consists of feature scopes/names, scalar values, and
+experiment-policy metadata; it contains no account authorization tokens.
+Its default snapshot replaces all live assignments with 875 retained records.
+This changes behavior beyond playback, with a switch to retain live assignments.
+Unrelated wire fields are preserved, and unsupported responses retain their
+original body.
 
-The trial corrects the input's malformed `pendragon` host pattern and narrows
-service paths to endpoint boundaries. Its optional service blocking includes
-offline and token-related endpoints, so it can affect functionality beyond ads.
-It is disabled as a group using **Block extra service endpoints**. Compatibility
-with Spotify 9.1.88.2209 and recovery from playback failures are unverified.
+Original home/scroll scripts retag byte patterns to invalid protobuf wire type
+7; the search script scans arbitrary byte offsets. The optional native feed
+filter instead removes the first matching top-level length-delimited field
+within the reviewed prefix. It does not scan inside payloads or emit invalid
+tags. New/nested layouts may retain ads. Feed filtering is off by default.
+Local Gabo responses omit fabricated server/timing headers and the original
+HTTP/3 advertisement.
 
-The Spotify Snapshot Trial references six Amlabort files pinned to commit
-`f34e210c0cb092690296925ba08825dc6d2fb846`. The downloaded account provider,
-Gabo responder, and three feed providers were inspected. No active extra
-HTTP requests or credential exfiltration were found. The account provider's
-bundled protobuf.js runtime contains code-generation/fetch helpers, but its
-active transformation path does not use outbound fetches. None of that
-runtime or the original provider code is included in the published trial.
+**Apply module changes** disables account, service, and feed mutations. The
+MITM host list, cache-validator deletion, and separate ad routing set remain
+active. Disable Spotify Ads as well when comparing interception without
+script changes.
 
-The independent implementation uses Anywhere's native protobuf codec and
-embeds extracted static configuration data at build time. The data consists
-of feature scopes/names, scalar values, and experiment-policy metadata; it
-contains no account authorization tokens. Its snapshot replaces all live
-assignments with 875 retained records. This is a substantial behavioral
-change, with a separate switch to retain live assignments instead.
+## Integrity
 
-The original home/scroll scripts retag byte patterns to wire type 7, which is
-not a valid protobuf wire type. The search script scans arbitrary byte offsets.
-The published optional feed filter instead removes the first matching
-top-level length-delimited field within the reviewed prefix; it never searches
-inside a payload or emits an invalid tag. Nested/new layouts may retain ads.
-Feed filtering is off by default. Local Gabo responses omit the original
-HTTP/3 advertisement and fabricated server/timing headers.
+Provider URLs can change upstream. This repository does not fetch provider
+code at runtime or during a normal build. Quick-add subscriptions use a full
+commit SHA; optional `main` subscriptions remain mutable.
 
-**Apply module changes** disables account, service, and feed mutations, but
-does not disable the MITM host list, the native cache-validator deletion, or
-the separate ad routing set. Those distinctions matter when diagnosing the
-reported playback failure. The trial's live compatibility remains unverified.
-
-Original provider URLs follow mutable branches. A source owner or compromised
-account could replace that code after a review. This repository does not fetch
-provider code at runtime or during a normal build. Quick-add subscriptions use
-a full commit SHA; the optional `main` subscriptions remain mutable.
-
-Snapshot URLs, downloaded SHA-256 hashes, and the local module's fingerprint
-are recorded in [`provenance.json`](provenance.json). File hashes detect differences when checked
-against a trusted copy; they do not independently authenticate a compromised
-hosting service.
+Snapshot URLs and downloaded hashes are recorded in
+[provenance.json](provenance.json). [SHA256SUMS](SHA256SUMS) covers current
+sources, configuration data, and generated rule sets. Hashes detect changes
+against a trusted copy; they do not authenticate a compromised hosting service.
 
 ## Practical limits
 
-MITM scripts can inspect decrypted data for every intercepted host, including
+MITM scripts can inspect decrypted data for intercepted hosts, including
 authenticated requests. HTTPS interception requires trusting Anywhere's root
 certificate. Keep modules scoped to the hosts you intend to intercept.
 
-Anywhere's hostname entries are suffixes without wildcard exclusions. The
-YouTube `googlevideo.com` entry therefore includes redirector hosts, although
-its CDN rules exclude them. Spotify includes `spotify.com` to cover regional
-`*-spclient.spotify.com` hosts. It rewrites only the selected API/ad paths;
-other intercepted requests are forwarded unchanged.
+Anywhere uses hostname suffixes without wildcard exclusions. YouTube's
+`googlevideo.com` entry includes redirector hosts, although its CDN rules exclude
+them. Spotify's `spotify.com` entry covers regional `*-spclient.spotify.com`
+hosts. Only the selected API/ad paths are changed; other requests pass through.
 
-Spotify's routing helpers reject ad/diagnostic hosts and send matching Spotify
-hosts through the proxy selected by the user. The `spotify`, `-ad-logic`, and
-`ads-ak-ent` keyword rules match those substrings in any hostname. REJECT is
-seeded only on first import; subscription refreshes preserve local assignments.
-The routing helpers apply in Rule mode and obey Anywhere's normal tier priority.
-An explicitly assigned built-in Spotify set can take precedence over them.
+Spotify Ads rejects `aet.spotify.com` and its subdomains. Spotify Network routes
+matching hosts through the user's selected proxy; its `spotify` keyword matches
+that substring in any hostname. REJECT is seeded only on first import, and
+refreshes preserve local assignments. Routing helpers apply in Rule mode and
+obey Anywhere's tier priority; an assigned built-in Spotify set can override them.
+`.arrs` cannot express a protocol-specific Spotify UDP rejection rule.
 
-`.arrs` cannot express a protocol-specific Spotify UDP rejection or create the
-input module's proxy group. Select an existing proxy for Spotify Network in
-the app; use Anywhere's QUIC blocking if needed for MITM.
+Certificate pinning and app updates can prevent a module from working. If
+playback breaks, disable the module and restart the app. Enable only the current
+Spotify module when migrating from older installations.
 
-Certificate pinning and app updates may prevent a module from working. If a
-module breaks playback, disable it and restart the app. Remove or disable the
-earlier Spotify Lyrics Translation set when importing Premium so its hostname
-does not take precedence.
-
-The scripts keep the original response body on unsupported data or failures.
-Spotify Premium and SoundCloud plan attributes are client-side configuration
-changes. They do not grant paid server-side entitlements; offline downloads,
-high-quality audio, paid content, or audiobooks may remain unavailable.
+Spotify Premium and SoundCloud plan attributes are local configuration changes.
+They do not grant server-side entitlements; paid downloads, audio quality,
+audiobooks, and other features may remain unavailable. Earlier implementations
+were removed from the current release and remain only in Git history.

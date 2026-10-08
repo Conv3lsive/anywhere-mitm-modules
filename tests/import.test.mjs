@@ -39,35 +39,16 @@ test("add all carries three MITM modules and two Spotify routing helpers", () =>
   }
 });
 
-test("the Spotify trial imports separately with only its network routing helper", () => {
-  const elements = page("?module=spotify-adblock&ref=" + sha);
-  const links = new URL(elements.open.href).searchParams.getAll("link");
-  assert.deepEqual(links, ["modules/spotify-adblock.amrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/" + path));
-  assert.match(elements.message.textContent, /Disable Spotify Premium/);
-  const defaultLinks = new URL(page("?module=spotify-adblock").open.href).searchParams.getAll("link");
-  assert.ok(defaultLinks.every(link => link.includes("/9dc12435a05ea2b4d2d9d28fe435a2304638aa15/")));
-});
-
-test("the Spotify snapshot trial imports separately with its own ad and network sets", () => {
-  const elements = page("?module=spotify-snapshot&ref=" + sha);
-  const links = new URL(elements.open.href).searchParams.getAll("link");
-  assert.deepEqual(links, ["modules/spotify-snapshot.amrs", "routing/spotify-snapshot-ads.arrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/" + path));
-  assert.match(elements.message.textContent, /Disable other Spotify/);
-  assert.match(elements.message.textContent, /unverified/);
-  const defaults = new URL(page("?module=spotify-snapshot").open.href).searchParams.getAll("link");
-  assert.ok(defaults.every(link => link.includes("/d3fc27488eaa48e91a7ef39a6cf464c142ab72d6/")));
-});
-
-test("earlier pinned links keep importing the original three modules", () => {
-  const old = "ffa77ba7eb57701a16b79beb1d6c4393610ae7fe";
-  const links = new URL(page("?module=all&ref=" + old).open.href).searchParams.getAll("link");
+test("the earlier working snapshot link remains available at its fixed commit", () => {
+  const old = "d3fc27488eaa48e91a7ef39a6cf464c142ab72d6";
+  const links = new URL(page("?module=spotify-snapshot&ref=" + old).open.href).searchParams.getAll("link");
   assert.equal(links.length, 3);
-  assert.ok(links.some(link => link.endsWith("/modules/spotify-lyrics.amrs")));
-  assert.equal(new URL(page("?module=spotify-lyrics&ref=" + old).open.href).searchParams.getAll("link").length, 1);
+  assert.deepEqual(links, ["modules/spotify-snapshot.amrs", "routing/spotify-snapshot-ads.arrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + old + "/" + path));
+  assert.equal(page("?module=spotify-snapshot&ref=" + old).title.textContent, "Spotify Premium");
 });
 
 test("the import page rejects unknown modules, mutable refs, and injected URLs", () => {
-  for (const query of ["?module=__proto__&ref=" + sha, "?module=https://evil.example&ref=" + sha, "?module=youtube&ref=main", "?module=youtube&ref=https://evil.example"]) {
+  for (const query of ["?module=spotify-adblock&ref=" + sha, "?module=spotify-lyrics&ref=" + sha, "?module=__proto__&ref=" + sha, "?module=https://evil.example&ref=" + sha, "?module=youtube&ref=main", "?module=youtube&ref=https://evil.example"]) {
     const elements = page(query);
     assert.equal(elements.open.href, undefined);
     assert.equal(elements.open.hidden, true);

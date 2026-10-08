@@ -1,5 +1,0 @@
-# Reject the aet.spotify.com ad/tracking domain for the Spotify Snapshot Trial.
-name = Spotify Snapshot Ads
-routing = 2
-
-2,aet.spotify.com

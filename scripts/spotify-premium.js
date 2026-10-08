@@ -1,100 +1,110 @@
-// Spotify account-attribute rewrites using Anywhere's native protobuf codec.
-// Behavior and wire schema: app2smile/rules (MIT), see THIRD_PARTY_NOTICES.md.
+// Independent implementation of the reviewed Amlabort account/snapshot behavior.
+// Static data is embedded at build time; see provenance.json and THIRD_PARTY_NOTICES.md.
 function process(ctx) {
-  if (ctx.phase !== "response" || ctx.status !== 200 || ctx.method !== "POST") return;
-  const match = /^https?:\/\/(?:spclient\.wg\.spotify\.com|[\w.-]+-spclient\.spotify\.com)(?::443)?\/(bootstrap\/v1\/bootstrap|user-customization-service\/v1\/customize)(?:\?|$)/.exec(ctx.url || "");
+  const flag = (name, fallback) => (Anywhere.params.get(name) || fallback) === "true";
+  if (ctx.phase !== "response" || ctx.status !== 200 || ctx.method !== "POST" || !flag("applyRewrites", "true")) return;
+  const match = /^https:\/\/(?:spclient\.wg\.spotify\.com|[\w.-]+-spclient\.spotify\.com)(?::443)?\/(bootstrap\/v1\/bootstrap|user-customization-service\/v1\/customize)(?:\?|$)/.exec(ctx.url || "");
   if (!match || !ctx.body.length) return;
-
-  const pb = Anywhere.codec.protobuf;
-  const utf8 = Anywhere.codec.utf8;
-  const stringField = (field, value) => ({ field, wire: 2, value: utf8.encode(value) });
+  const pb = Anywhere.codec.protobuf, utf8 = Anywhere.codec.utf8;
+  const str = (field, value) => ({ field, wire: 2, value: utf8.encode(String(value)) });
+  const msg = (field, fields) => ({ field, wire: 2, value: pb.encode(fields) });
+  const integer = (field, value) => ({ field, wire: 0, value: BigInt.asUintN(64, BigInt(value)) });
+  const find = (fields, field) => fields.find(item => item.field === field && item.wire === 2);
+  function updateAt(fields, path, transform) {
+    if (!path.length) { transform(fields); return true; }
+    const entry = find(fields, path[0]);
+    if (!entry) return false;
+    const nested = pb.decode(entry.value);
+    if (!updateAt(nested, path.slice(1), transform)) return false;
+    entry.value = pb.encode(nested);
+    return true;
+  }
+  function assignment(item) {
+    const fields = [msg(1, [str(1, item.propertyId.scope), str(2, item.propertyId.name)])];
+    if (item.metadata) {
+      const metadata = [];
+      if (item.metadata.policyId !== undefined) metadata.push(integer(1, item.metadata.policyId));
+      if (item.metadata.externalRealm !== undefined) metadata.push(str(2, item.metadata.externalRealm));
+      if (item.metadata.externalRealmId !== undefined) metadata.push(integer(3, item.metadata.externalRealmId));
+      fields.push(msg(2, metadata));
+    }
+    for (const [name, field] of [["boolValue", 3], ["intValue", 4], ["enumValue", 5]]) {
+      if (item[name] === undefined) continue;
+      const value = item[name].value;
+      const inner = value === undefined ? [] : [field === 5 ? str(1, value) : integer(1, field === 3 ? Number(value) : value)];
+      fields.push(msg(field, inner));
+    }
+    return msg(3, fields);
+  }
   try {
     const expiry = new Date();
-    expiry.setMonth(expiry.getMonth() + 1);
-    const endDate = expiry.toISOString().split(".")[0] + "Z";
+    expiry.setUTCFullYear(expiry.getUTCFullYear() + 1);
+    const endDate = expiry.toISOString();
     const attributes = {
-      "smart-shuffle": "AVAILABLE",
-      "is-euterpe": true,
-      "has-audiobooks-subscription": true,
-      "type": "premium",
-      "payments-initial-campaign": "prepaid",
-      "subscription-enddate": endDate,
-      "social-session-free-tier": false,
-      "can_use_superbird": true,
-      "jam-social-session": "EXPANDED",
-      "offline": true,
-      "audio-quality": "1",
-      "shuffle-algorithm": "RANDOM",
-      "is-thalia": true,
-      "shuffle": false,
-      "is-pigeon": true,
-      "nft-disabled": "1",
-      "libspotify": true,
-      "high-bitrate": true,
-      "unrestricted": true,
-      "catalogue": "premium",
-      "your-library-tags": true,
-      "ads": false,
-      "on-demand": true,
-      "name": "Spotify Premium",
-      "loudness-levels": "1:-5.0,0.0,3.0:-2.0",
-      "product-expiry": endDate,
-      "social-session": true,
-      "pick-and-shuffle": false,
-      "offline-backup": "UNRESTRICTED",
-      "lyrics-offline": true,
+      ads: false,
+      "ab-ad-player-targeting": "0",
+      "allow-advertising-id-transmission": false,
+      "restrict-advertising-id-transmission": true,
+      can_use_superbird: true,
+      catalogue: "premium",
       "financial-product": "pr:premium,tc:0",
-      "streaming-rules": "",
-      "mixing-tools": "EDIT",
-      "mobile": true,
+      "is-eligible-premium-unboxing": true,
+      name: "Spotify Premium",
+      "nft-disabled": "1",
+      offline: true,
+      "on-demand": true,
+      "payments-initial-campaign": "default",
       "player-license": "premium",
-      "com.spotify.madprops.use.ucs.product.state": true,
-      "com.spotify.madprops.delivered.by.ucs": true
+      "player-license-v2": "premium",
+      "product-expiry": endDate,
+      "shuffle-eligible": true,
+      "social-session": true,
+      "social-session-free-tier": false,
+      "streaming-rules": "",
+      "subscription-enddate": endDate,
+      type: "premium",
+      unrestricted: true
     };
-    const attributeValue = value => typeof value === "boolean"
-      ? { field: 2, wire: 0, value: value ? 1n : 0n }
-      : stringField(4, value);
-
-    // Follow only known successful wrappers; do not manufacture success on errors.
-    const path = match[1] === "bootstrap/v1/bootstrap" ? [2, 1, 1, 1, 3] : [1, 3];
-    const top = pb.decode(ctx.body);
-    let current = top;
-    const parents = [];
-    for (const field of path) {
-      const entry = current.find(item => item.field === field && item.wire === 2);
-      if (!entry) return;
-      parents.push({ entry, parent: current });
-      current = pb.decode(entry.value);
+    const removals = new Set(["ad-use-adlogic", "ad-catalogues", "shuffle", "payment-state", "last-premium-activation-date", "on-demand-trial", "on-demand-trial-in-progress", "smart-shuffle", "at-signal", "feature-set-id-masked", "strider-key", "is-eligible-for-trial", "is-eligible-for-upsell", "upsell-state", "ad-session-persistence", "ad-formats-preroll-video", "is-premium-eligible"]);
+    for (let i = 1; i <= 100; i++) removals.add("is-premium-eligible-v" + i);
+    const value = item => typeof item === "boolean" ? integer(2, Number(item)) : str(4, item);
+    let top = pb.decode(ctx.body);
+    const bootstrap = match[1] === "bootstrap/v1/bootstrap";
+    const success = bootstrap ? [2, 1, 1, 1] : [1];
+    if (!updateAt(top, [...success, 3], fields => {
+      const output = [], seen = new Set();
+      for (const entry of fields) {
+        if (entry.field !== 1 || entry.wire !== 2) { output.push(entry); continue; }
+        const map = pb.decode(entry.value), key = find(map, 1);
+        if (!key) { output.push(entry); continue; }
+        const name = utf8.decode(key.value);
+        if (removals.has(name)) continue;
+        if (Object.prototype.hasOwnProperty.call(attributes, name)) {
+          const current = find(map, 2);
+          const inner = current ? pb.decode(current.value) : [];
+          const kept = inner.filter(item => !((item.field === 2 || item.field === 3) && item.wire === 0 || item.field === 4 && item.wire === 2));
+          const bytes = pb.encode([...kept, value(attributes[name])]);
+          if (current) current.value = bytes;
+          else map.push({ field: 2, wire: 2, value: bytes });
+          entry.value = pb.encode(map);
+          seen.add(name);
+        }
+        output.push(entry);
+      }
+      for (const [name, item] of Object.entries(attributes)) {
+        if (!seen.has(name)) output.push(msg(1, [str(1, name), msg(2, [value(item)])]));
+      }
+      fields.splice(0, fields.length, ...output);
+    })) return;
+    if (flag("replaceConfiguration", "true")) {
+      const blacklist = new Set(AML_CONFIG_DATA.blacklist);
+      const snapshot = AML_CONFIG_DATA.assignments.filter(item => !blacklist.has(item.propertyId.scope + "::" + item.propertyId.name)).map(assignment);
+      if (!updateAt(top, [...success, 1, 1], fields => {
+        const otherFields = fields.filter(item => !(item.field === 3 && item.wire === 2));
+        fields.splice(0, fields.length, ...otherFields, ...snapshot);
+      })) return;
     }
-    const seen = new Set();
-    for (const entry of current) {
-      if (entry.field !== 1 || entry.wire !== 2) continue;
-      const mapEntry = pb.decode(entry.value);
-      const key = mapEntry.find(item => item.field === 1 && item.wire === 2);
-      if (!key) continue;
-      const name = utf8.decode(key.value);
-      if (!Object.prototype.hasOwnProperty.call(attributes, name)) continue;
-      let valueEntry = mapEntry.find(item => item.field === 2 && item.wire === 2);
-      const valueFields = valueEntry ? pb.decode(valueEntry.value) : [];
-      // Replace the value oneof while keeping unrecognized map/value metadata.
-      const preserved = valueFields.filter(item => !(
-        (item.field === 2 || item.field === 3) && item.wire === 0 || item.field === 4 && item.wire === 2
-      ));
-      const value = pb.encode([...preserved, attributeValue(attributes[name])]);
-      if (valueEntry) valueEntry.value = value;
-      else mapEntry.push({ field: 2, wire: 2, value });
-      entry.value = pb.encode(mapEntry);
-      seen.add(name);
-    }
-    for (const [name, value] of Object.entries(attributes)) {
-      if (seen.has(name)) continue;
-      const mapEntry = pb.encode([stringField(1, name), { field: 2, wire: 2, value: pb.encode([attributeValue(value)]) }]);
-      current.push({ field: 1, wire: 2, value: mapEntry });
-    }
-    for (let i = parents.length - 1; i >= 0; i--) {
-      parents[i].entry.value = pb.encode(current);
-      current = parents[i].parent;
-    }
+    if (bootstrap) top = top.filter(item => !(item.field === 3 && item.wire === 2));
     ctx.body = pb.encode(top);
   } catch (_) {
     Anywhere.log.warning("Spotify Premium: unsupported response; original body retained.");

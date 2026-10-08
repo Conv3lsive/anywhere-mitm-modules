@@ -3,112 +3,54 @@
     "id": "youtube",
     "name": "YouTube Ad Block & Playback",
     "description": "Removes supported ad placements and enables picture-in-picture and background playback flags.",
-    "hostnames": ["youtubei.googleapis.com", "www.youtube.com", "s.youtube.com", "googlevideo.com"],
-    "rules": [
-      [0, 0, "^https?://((?!redirector)[\\w-]+\\.googlevideo\\.com)/((?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+)", 1, "https://$1/$2$3$4"],
-      [0, 0, "^https?://(?!redirector)[\\w-]+\\.googlevideo\\.com/(?!(?:dclk_video_ads|videoplayback\\?)).+&oad", 2, ""],
-      [0, 0, "^https?://(?:www|s)\\.youtube\\.com/api/stats/ads(?:[/?]|$)", 2, ""],
-      [0, 0, "^https?://(?:www|s)\\.youtube\\.com/(?:pagead|ptracking)(?:[/?]|$)", 2, ""],
-      [0, 0, "^https?://s\\.youtube\\.com/api/stats/qoe\\?adcontext", 2, ""],
-      {"phase": 1, "pattern": "^https://youtubei\\.googleapis\\.com/youtubei/v1/(?:browse|next|player|search|reel/reel_watch_sequence|guide|account/get_setting|get_watch)(?:\\?|$)", "scripts": ["scripts/vendor/youtube-core.js", "scripts/youtube.js"]}
-    ],
-    "parameters": [
-      [1, 0, "blockUpload", "Hide upload button", "Hide the upload tab in supported navigation responses.", "true", "[true, false]"],
-      [1, 0, "blockImmersive", "Hide immersive tab", "Hide the immersive music tab in supported navigation responses.", "true", "[true, false]"],
-      [1, 0, "blockShorts", "Hide Shorts tab", "Hide the Shorts tab in supported navigation responses.", "false", "[false, true]"]
-    ]
-  },
-  {
-    "id": "spotify",
-    "name": "Spotify Premium",
-    "description": "Sets Premium playback attributes, disables supported ads and shuffle restrictions, and adjusts mobile API requests.",
     "hostnames": [
-      "spclient.wg.spotify.com",
-      "spotify.com"
+      "youtubei.googleapis.com",
+      "www.youtube.com",
+      "s.youtube.com",
+      "googlevideo.com"
     ],
     "rules": [
       [
         0,
+        0,
+        "^https?://((?!redirector)[\\w-]+\\.googlevideo\\.com)/((?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+)",
+        1,
+        "https://$1/$2$3$4"
+      ],
+      [
+        0,
+        0,
+        "^https?://(?!redirector)[\\w-]+\\.googlevideo\\.com/(?!(?:dclk_video_ads|videoplayback\\?)).+&oad",
         2,
-        "^https?://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/user-customization-service/v1/customize(?:\\?|$)",
-        "If-None-Match"
+        ""
       ],
       [
         0,
         0,
-        "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/((?:artistview/v1/artist|album-entity-view/v2/album)/[^#]*?)([?&])platform=iphone(?=&|$)(.*)$",
-        0,
-        "https://$1/$2$3platform=ipad$4"
+        "^https?://(?:www|s)\\.youtube\\.com/api/stats/ads(?:[/?]|$)",
+        2,
+        ""
       ],
       [
         0,
         0,
-        "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com):443/((?:artistview/v1/artist|album-entity-view/v2/album)/.*)$",
-        0,
-        "https://$1/$2"
+        "^https?://(?:www|s)\\.youtube\\.com/(?:pagead|ptracking)(?:[/?]|$)",
+        2,
+        ""
       ],
       [
         0,
         0,
-        "^http://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/((?:artistview/v1/artist|album-entity-view/v2/album)/[^#]*?)([?&])platform=iphone(?=&|$)(.*)$",
-        0,
-        "http://$1/$2$3platform=ipad$4"
-      ],
-      [
-        0,
-        0,
-        "^http://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com):443/((?:artistview/v1/artist|album-entity-view/v2/album)/.*)$",
-        0,
-        "http://$1/$2"
-      ],
-      [
-        0,
-        0,
-        "^https?://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:ad-logic|ads)(?:[/?]|$)",
+        "^https?://s\\.youtube\\.com/api/stats/qoe\\?adcontext",
         2,
         ""
       ],
       {
         "phase": 1,
-        "pattern": "^https?://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:bootstrap/v1/bootstrap|user-customization-service/v1/customize)(?:\\?|$)",
+        "pattern": "^https://youtubei\\.googleapis\\.com/youtubei/v1/(?:browse|next|player|search|reel/reel_watch_sequence|guide|account/get_setting|get_watch)(?:\\?|$)",
         "scripts": [
-          "scripts/spotify-premium.js"
-        ]
-      }
-    ],
-    "parameters": []
-  },
-  {
-    "id": "soundcloud",
-    "name": "SoundCloud Go+ Configuration",
-    "description": "Sets local Go+ plan and playback feature flags in the iOS configuration response.",
-    "hostnames": ["api-mobile.soundcloud.com"],
-    "rules": [
-      {"phase": 1, "pattern": "^https://api-mobile\\.soundcloud\\.com/configuration/ios(?:\\?|$)", "scripts": ["scripts/soundcloud.js"]}
-    ],
-    "parameters": []
-  },
-  {
-    "id": "spotify-adblock",
-    "name": "Spotify Ad Block Trial",
-    "description": "Experimental Spotify ad blocking with a smaller set of Premium account flags and optional service blocking.",
-    "hostnames": [
-      "spclient.wg.spotify.com",
-      "spotify.com"
-    ],
-    "rules": [
-      {
-        "phase": 0,
-        "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(pendragon|pushka-tokens|gabo-receiver-service|ad(?:s|-logic)?|offline)(?:[/?]|$)",
-        "scripts": [
-          "scripts/spotify-adblock-services.js"
-        ]
-      },
-      {
-        "phase": 1,
-        "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:bootstrap/v1/bootstrap|user-customization-service/v1/customize)(?:\\?|$)",
-        "scripts": [
-          "scripts/spotify-adblock.js"
+          "scripts/vendor/youtube-core.js",
+          "scripts/youtube.js"
         ]
       }
     ],
@@ -116,36 +58,36 @@
       [
         1,
         0,
-        "blockServices",
-        "Block extra service endpoints",
-        "Return local responses for selected ad, pendragon, gabo, pushka, and offline endpoints. Turn off to compare playback.",
+        "blockUpload",
+        "Hide upload button",
+        "Hide the upload tab in supported navigation responses.",
         "true",
         "[true, false]"
       ],
       [
         1,
         0,
-        "tab",
-        "Hide Create tab",
-        "Changes the existing navigation configuration. Sign in again after changing this option.",
+        "blockImmersive",
+        "Hide immersive tab",
+        "Hide the immersive music tab in supported navigation responses.",
+        "true",
+        "[true, false]"
+      ],
+      [
+        1,
+        0,
+        "blockShorts",
+        "Hide Shorts tab",
+        "Hide the Shorts tab in supported navigation responses.",
         "false",
         "[false, true]"
-      ],
-      [
-        1,
-        0,
-        "useractivity",
-        "Allow Apple Handoff",
-        "Keep the server setting for Apple device Handoff. Disable to turn sharing off; sign in again after changing this option.",
-        "true",
-        "[true, false]"
       ]
     ]
   },
   {
-    "id": "spotify-snapshot",
-    "name": "Spotify Snapshot Trial",
-    "description": "Experimental Spotify Premium playback flags with an optional fixed playback configuration and feed ad filtering.",
+    "id": "spotify",
+    "name": "Spotify Premium",
+    "description": "Sets Premium playback attributes, removes trial restrictions, and applies a fixed playback configuration with optional feed ad filtering.",
     "hostnames": [
       "spclient.wg.spotify.com",
       "spotify.com"
@@ -161,14 +103,14 @@
         "phase": 0,
         "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:(?:gabo-receiver-service|pendragon|pam-view-service)(?:[/?]|$)|[^#]*37i9dQZF1EYkqdzj48dyYq)",
         "scripts": [
-          "scripts/spotify-snapshot-services.js"
+          "scripts/spotify-services.js"
         ]
       },
       {
         "phase": 1,
         "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:bootstrap/v1/bootstrap|user-customization-service/v1/customize)(?:\\?|$)",
         "scripts": [
-          "scripts/spotify-snapshot.js"
+          "scripts/spotify-premium.js"
         ],
         "bindings": {
           "AML_CONFIG_DATA": "data/spotify-amlabort-config.json"
@@ -178,7 +120,7 @@
         "phase": 1,
         "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:browsita/v\\d+/browse|casita/v\\d+/home/default|scrollsita/v\\d+/scroll/spotify)(?:[/?]|$)",
         "scripts": [
-          "scripts/spotify-snapshot-feeds.js"
+          "scripts/spotify-feeds.js"
         ]
       }
     ],
@@ -211,5 +153,23 @@
         "[false, true]"
       ]
     ]
+  },
+  {
+    "id": "soundcloud",
+    "name": "SoundCloud Go+ Configuration",
+    "description": "Sets local Go+ plan and playback feature flags in the iOS configuration response.",
+    "hostnames": [
+      "api-mobile.soundcloud.com"
+    ],
+    "rules": [
+      {
+        "phase": 1,
+        "pattern": "^https://api-mobile\\.soundcloud\\.com/configuration/ios(?:\\?|$)",
+        "scripts": [
+          "scripts/soundcloud.js"
+        ]
+      }
+    ],
+    "parameters": []
   }
 ]

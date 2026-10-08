@@ -27,51 +27,34 @@
   <script>
     (() => {
       const query = new URLSearchParams(location.search);
-      const trialRefs = new Map([
-        ["spotify-adblock", "9dc12435a05ea2b4d2d9d28fe435a2304638aa15"],
-        ["spotify-snapshot", "d3fc27488eaa48e91a7ef39a6cf464c142ab72d6"]
-      ]);
-      const ref = query.get("ref") || trialRefs.get(query.get("module")) || "be99056a6233fe2a3a1ae0d05625a4d5c50f4763";
-      const legacy = ref === "ffa77ba7eb57701a16b79beb1d6c4393610ae7fe";
+      const ref = query.get("ref") || "d3fc27488eaa48e91a7ef39a6cf464c142ab72d6";
+      const requested = query.get("module") || "all";
+      const selected = requested === "spotify-snapshot" ? "spotify" : requested;
+      const archivedWorking = ref === "d3fc27488eaa48e91a7ef39a6cf464c142ab72d6";
+      const spotifyFiles = archivedWorking ? [
+        ["Spotify Snapshot Trial", "modules/spotify-snapshot.amrs"],
+        ["Spotify Snapshot Ads", "routing/spotify-snapshot-ads.arrs"],
+        ["Spotify Network", "routing/spotify-network.arrs"]
+      ] : [
+        ["Spotify Premium", "modules/spotify.amrs"],
+        ["Spotify Ads", "routing/spotify-reject.arrs"],
+        ["Spotify Network", "routing/spotify-network.arrs"]
+      ];
       const modules = {
         youtube: { name: "YouTube Ad Block & Playback", files: [["YouTube Ad Block & Playback", "modules/youtube.amrs"]] },
-        ...(legacy ? {
-          "spotify-lyrics": { name: "Spotify Lyrics Translation", files: [["Spotify Lyrics Translation", "modules/spotify-lyrics.amrs"]] }
-        } : {
-          spotify: { name: "Spotify Premium", files: [
-            ["Spotify Premium", "modules/spotify.amrs"],
-            ["Spotify Ads & Diagnostics", "routing/spotify-reject.arrs"],
-            ["Spotify Network", "routing/spotify-network.arrs"]
-          ] },
-          "spotify-adblock": { name: "Spotify Ad Block Trial", files: [
-            ["Spotify Ad Block Trial", "modules/spotify-adblock.amrs"],
-            ["Spotify Network", "routing/spotify-network.arrs"]
-          ] },
-          "spotify-snapshot": { name: "Spotify Snapshot Trial", files: [
-            ["Spotify Snapshot Trial", "modules/spotify-snapshot.amrs"],
-            ["Spotify Snapshot Ads", "routing/spotify-snapshot-ads.arrs"],
-            ["Spotify Network", "routing/spotify-network.arrs"]
-          ] }
-        }),
+        spotify: { name: "Spotify Premium", files: spotifyFiles },
         soundcloud: { name: "SoundCloud Go+ Configuration", files: [["SoundCloud Go+ Configuration", "modules/soundcloud.amrs"]] }
       };
-      const selected = query.get("module") || "all";
       if (!/^[a-f0-9]{40}$/.test(ref) || (selected !== "all" && !Object.hasOwn(modules, selected))) {
         document.getElementById("message").textContent = "Invalid module or version. Use an import link from the repository README.";
         return;
       }
-      const ids = selected === "all" ? ["youtube", legacy ? "spotify-lyrics" : "spotify", "soundcloud"] : [selected];
+      const ids = selected === "all" ? ["youtube", "spotify", "soundcloud"] : [selected];
       document.getElementById("title").textContent = selected === "all" ? "Add All Three Modules" : modules[selected].name;
       const files = ids.flatMap(id => modules[id].files);
       const links = files.map(([, path]) => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + ref + "/" + path);
-      if (!legacy && ids.includes("spotify")) {
-        document.getElementById("message").textContent = "Imports Spotify Premium and its two routing sets. In Anywhere Routing, select your proxy for Spotify Network and keep Spotify Ads & Diagnostics on REJECT.";
-      }
-      if (selected === "spotify-adblock") {
-        document.getElementById("message").textContent = "Experimental alternative. Disable Spotify Premium, Spotify Lyrics Translation, and Spotify Ads & Diagnostics before testing. Keep Spotify Network on your selected proxy. Start with Normal audio quality.";
-      }
-      if (selected === "spotify-snapshot") {
-        document.getElementById("message").textContent = "Experimental playback test. Disable other Spotify MITM modules and Spotify Ads & Diagnostics. Keep Spotify Snapshot Ads on REJECT and Spotify Network on your existing proxy. Use Normal audio quality and sign in again. Playback on Spotify 9.1.88 is unverified.";
+      if (ids.includes("spotify")) {
+        document.getElementById("message").textContent = "Imports Spotify Premium and its two routing sets. In Anywhere Routing, select your proxy for Spotify Network and keep " + spotifyFiles[1][0] + " on REJECT. Use Normal audio quality and QUIC Automatic. Playback confirmed by a user on Spotify 9.1.88.2209.";
       }
       const open = document.getElementById("open");
       open.href = "anywhere://add-rule-set?" + links.map(link => "link=" + encodeURIComponent(link)).join("&");

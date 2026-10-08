@@ -1,15 +1,14 @@
 [
   {
     "id": "spotify-reject",
-    "name": "Spotify Ads & Diagnostics",
-    "description": "Reject Spotify ad delivery and diagnostic domains.",
+    "name": "Spotify Ads",
+    "description": "Reject the aet.spotify.com ad/tracking domain for Spotify Premium.",
     "routing": 2,
     "rules": [
-      [2, "ads-ak-spotify-com.akamaized.net"],
-      [2, "crashdump.spotify.com"],
-      [2, "log.spotify.com"],
-      [3, "-ad-logic"],
-      [3, "ads-ak-ent"]
+      [
+        2,
+        "aet.spotify.com"
+      ]
     ]
   },
   {
@@ -18,21 +17,21 @@
     "description": "Assign this set to your Spotify proxy or PROXY in Anywhere Routing.",
     "routing": 0,
     "rules": [
-      [3, "spotify"],
-      [2, "scdn.co"],
-      [2, "pscdn.co"],
-      [2, "spoti.fi"]
-    ]
-  },
-  {
-    "id": "spotify-snapshot-ads",
-    "name": "Spotify Snapshot Ads",
-    "description": "Reject the aet.spotify.com ad/tracking domain for the Spotify Snapshot Trial.",
-    "routing": 2,
-    "rules": [
+      [
+        3,
+        "spotify"
+      ],
       [
         2,
-        "aet.spotify.com"
+        "scdn.co"
+      ],
+      [
+        2,
+        "pscdn.co"
+      ],
+      [
+        2,
+        "spoti.fi"
       ]
     ]
   }

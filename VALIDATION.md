@@ -1,48 +1,39 @@
 # Validation
 
+**User-confirmed Spotify playback:** on 2026-10-08, the user reported that all
+music plays normally with the snapshot-based implementation in Anywhere on
+Spotify **9.1.88.2209**. That implementation is now the sole Spotify module,
+published as Spotify Premium. This report covers one user setup, not universal
+compatibility or all Premium features.
+
 Validated locally on 2026-10-08:
 
 - Deterministic offline build and SHA-256 verification passed.
-- Native script syntax passed Node.js checks.
-- Synthetic JSON/protobuf response tests passed, including Spotify bootstrap
-  and customization attributes, unknown-field preservation, failure passthrough,
-  URL/header rule scope, and routing helpers. The trial also covers its smaller
-  attribute set, UI options, local service responses, and disabling service
-  blocking. Snapshot tests cover account-key removals, all 875 assignments,
-  configuration and global mutation switches, service-response scope, structural
-  feed filtering, and embedded data integrity. 31 portable tests passed.
-- The native trial's account attributes and UI values matched the downloaded
-  reference on four successful protobuf fixtures: bootstrap and customization,
-  each with default and changed UI options. Field order was compared semantically.
-- The Snapshot Trial's account changes, deletions, and all 875 configuration
-  assignments matched the pinned Amlabort provider on successful bootstrap and
-  customization fixtures. Expiry timestamps were compared separately because
-  the reference and native code run at different instants.
-- Import-page tests passed for one module, all three modules with routing
-  helpers, separate trial import, earlier pinned releases, and rejected input.
-- The official Anywhere `MITMRuleSetParser.swift`, fetched on the review date,
-  accepted all generated files. Its native JavaScriptCore syntax check accepted
-  the embedded scripts. YouTube: 6 rules and 3 parameters; Spotify Premium:
-  7 rules and no parameters; SoundCloud: 1 rule and no parameters.
-  Spotify Ad Block Trial: 2 rules and 3 parameters.
-  Spotify Snapshot Trial: 4 rules and 3 parameters.
-- The official Anywhere `RoutingRuleParser.swift` accepted both `.arrs` files,
-  including 5 rejection rules with an initial REJECT assignment and 4 network
-  rules with an initial Default assignment.
-  The Snapshot Ads helper has 1 rejection rule with an initial REJECT assignment.
+- Synthetic JSON/protobuf tests cover Spotify bootstrap/customization account
+  rewrites, trial-key removals, all 875 assignments, configuration/mutation
+  switches, service-response scope, structural feed filtering, embedded data,
+  and preservation of unrelated fields and unsupported responses.
+- Spotify account changes, deletions, and all 875 assignments matched the
+  pinned Amlabort provider on successful bootstrap/customization fixtures.
+  Expiry timestamps were checked separately because the scripts run at
+  different instants.
+- Promotion preserves the working rules, parameters, configuration data, and
+  script behavior. Only names, source paths, and generic log labels changed.
+- Import-page tests cover Spotify alone, all three modules with two routing
+  helpers, the earlier working snapshot link, and rejected inputs/retired IDs.
+- 17 portable tests passed.
+- The official Anywhere MITM parser accepted every generated file and its
+  JavaScriptCore syntax check accepted embedded scripts: YouTube has 6 rules
+  and 3 parameters; Spotify Premium has 4 rules and 3 parameters; SoundCloud
+  has 1 rule and no parameters.
+- The official routing parser accepted both helpers: Spotify Ads has 1 rejection
+  rule with initial REJECT assignment; Spotify Network has 4 rules with initial
+  Default assignment.
 
-The parser check used the official parser and its rule models with storage/icon
-support shims for a standalone macOS harness. These modules have not been tested
-against a live YouTube, Spotify, or SoundCloud session in Anywhere.
-
-User feedback on 2026-10-08: Spotify 9.1.88.2209 skips tracks after a few seconds
-and then stops with this subscription in Anywhere and QUIC set to Automatic.
-The cause is not yet isolated; passing the checks above does not establish
-playback compatibility. See the README's playback troubleshooting steps.
-The user subsequently reported that the Ad Block Trial also failed after
-following its setup instructions. The same track plays normally through the
-same proxy when all Spotify MITM modules are disabled. This comparison does
-not yet isolate HTTPS interception from the module's mutations.
+Parser checks use official rule/parser sources with storage/icon support shims
+in a standalone macOS harness. The assistant has not independently tested a
+live session on the user's device. YouTube and SoundCloud lack live verification
+in this session.
 
 Repeat the portable checks:
 

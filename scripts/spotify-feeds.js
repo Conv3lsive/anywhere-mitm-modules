@@ -17,6 +17,6 @@ function process(ctx) {
     });
     if (removed) ctx.body = pb.encode(kept);
   } catch (_) {
-    Anywhere.log.warning("Spotify Snapshot Trial: unsupported feed; original body retained.");
+    Anywhere.log.warning("Spotify Premium: unsupported feed; original body retained.");
   }
 }

@@ -1,148 +1,163 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 import { nested, protobuf as pb, response, runtime, str, utf8 } from "./runtime.mjs";
 
+const url = "https://gew1-spclient.spotify.com:443/user-customization-service/v1/customize?version=1";
+const find = (fields, field) => fields.find(item => item.field === field && item.wire === 2);
+const bool = (field, value) => ({ field, wire: 0, value: BigInt(value) });
+const bytes = value => Buffer.from(value);
+const attr = (name, fields) => nested(1, [str(1, name), nested(2, fields), str(90, "map metadata")]);
+const config = JSON.parse(readFileSync(new URL("../data/spotify-amlabort-config.json", import.meta.url)));
 const module = JSON.parse(readFileSync(new URL("../modules.json", import.meta.url))).find(item => item.id === "spotify");
-const find = (entries, field) => entries.find(entry => entry.field === field && entry.wire === 2);
-const equalBytes = (a, b) => assert.deepEqual(Buffer.from(a), Buffer.from(b));
-const extras = [{ field: 80, wire: 0, value: 123n }, str(81, "preserve")];
 
-function fixture(bootstrap = false, empty = false) {
-  const entries = empty ? [] : [
-    nested(1, [str(1, "type"), nested(2, [str(4, "free"), str(90, "attribute metadata")]), str(40, "map metadata")]),
-    nested(1, [str(1, "ads"), nested(2, [{ field: 3, wire: 0, value: 123n }, { field: 91, wire: 0, value: 987n }])]),
-    nested(1, [str(1, "custom-untouched"), nested(2, [str(4, "keep"), str(90, "extra")])]),
-    ...extras
-  ];
-  const path = bootstrap ? [2, 1, 1, 1, 3] : [1, 3];
-  let body = pb.encode(entries);
-  for (let i = path.length - 1; i >= 0; i--) body = pb.encode([{ field: path[i], wire: 2, value: body }, ...extras]);
-  return { body, path, entries };
+function fixture(bootstrap = false, configured = true) {
+  const attributes = [attr("type", [str(4, "free"), str(90, "value metadata")]), attr("ads", [bool(3, 99)]), attr("high-bitrate", [bool(2, 0)]), attr("on-demand-trial", [bool(2, 1)]), attr("shuffle", [bool(2, 1)]), attr("smart-shuffle", [str(4, "AVAILABLE")]), attr("is-premium-eligible-v100", [bool(2, 1)]), attr("is-premium-eligible-v101", [bool(2, 1)]), attr("custom-untouched", [str(4, "keep")]), bool(80, 123)];
+  const live = nested(3, [nested(1, [str(1, "live-scope"), str(2, "live-name")]), nested(3, [bool(1, 1)]), bool(80, 456)]);
+  const success = [nested(3, attributes), ...(configured ? [nested(1, [nested(1, [str(1, "live assignment id"), bool(4, 12345), live, bool(80, 456)])])] : []), bool(80, 123)];
+  const path = bootstrap ? [2, 1, 1, 1] : [1];
+  let body = pb.encode(success);
+  for (const field of [...path].reverse()) body = pb.encode([{ field, wire: 2, value: body }, bool(80, 123)]);
+  if (bootstrap) body = pb.encode([...pb.decode(body), nested(3, [nested(1, [bool(1, 1)])])]);
+  return { body, path, attributes, live };
 }
-
 function unwrap(body, path) {
   let fields = pb.decode(body);
   for (const field of path) fields = pb.decode(find(fields, field).value);
   return fields;
 }
-
-function map(entries) {
-  return new Map(entries.filter(entry => entry.field === 1 && entry.wire === 2).map(entry => {
-    const fields = pb.decode(entry.value);
-    return [utf8.decode(find(fields, 1).value), { fields, values: pb.decode(find(fields, 2).value) }];
+function account(body, path) {
+  return new Map(unwrap(body, [...path, 3]).filter(item => item.field === 1 && item.wire === 2).map(item => {
+    const fields = pb.decode(item.value);
+    return [utf8.decode(find(fields, 1).value), pb.decode(find(fields, 2).value)];
   }));
 }
-
+function key(entry) {
+  const fields = pb.decode(entry.value), property = pb.decode(find(fields, 1).value);
+  return utf8.decode(find(property, 1).value) + "::" + utf8.decode(find(property, 2).value);
+}
 for (const bootstrap of [false, true]) {
-  test("Spotify rewrites " + (bootstrap ? "bootstrap" : "customize") + " Premium flags and preserves unrecognized fields", async () => {
-    const { body, path, entries } = fixture(bootstrap);
-    const url = bootstrap ? "http://gew1-spclient.spotify.com:443/bootstrap/v1/bootstrap?version=1" : "https://spclient.wg.spotify.com/user-customization-service/v1/customize";
-    const ctx = response(url, body); ctx.method = "POST";
-    ctx.headers.push(["Authorization", "Bearer private-token"]);
+  test("Spotify Premium rewrites modern flags, trial keys and the complete configuration in " + (bootstrap ? "bootstrap" : "customize"), async () => {
+    const { body, path, attributes } = fixture(bootstrap);
+    const ctx = { ...response(bootstrap ? url.replace("user-customization-service/v1/customize", "bootstrap/v1/bootstrap") : url, body), method: "POST" };
     const rt = runtime("spotify");
     await rt.run(ctx);
-    const result = unwrap(ctx.body, path), account = map(result);
-    assert.equal(utf8.decode(find(account.get("type").values, 4).value), "premium");
-    assert.equal(utf8.decode(find(account.get("catalogue").values, 4).value), "premium");
-    assert.equal(utf8.decode(find(account.get("player-license").values, 4).value), "premium");
-    for (const name of ["ads", "shuffle", "pick-and-shuffle"]) assert.equal(account.get(name).values.find(item => item.field === 2).value, 0n);
-    for (const name of ["on-demand", "unrestricted", "high-bitrate", "offline"]) assert.equal(account.get(name).values.find(item => item.field === 2).value, 1n);
-    assert.equal(account.get("ads").values.some(item => item.field === 3), false);
-    assert.equal(account.get("ads").values.find(item => item.field === 91).value, 987n);
-    assert.equal(utf8.decode(find(account.get("type").values, 90).value), "attribute metadata");
-    assert.equal(utf8.decode(find(account.get("type").fields, 40).value), "map metadata");
-    equalBytes(result.find(entry => entry.field === 1 && utf8.decode(find(pb.decode(entry.value), 1).value) === "custom-untouched").value, entries[2].value);
-    const expiry = utf8.decode(find(account.get("subscription-enddate").values, 4).value);
-    assert.ok(Date.parse(expiry) > Date.now());
-    assert.ok(Date.parse(expiry) < Date.now() + 35 * 24 * 60 * 60 * 1000);
-    assert.equal(utf8.decode(find(account.get("product-expiry").values, 4).value), expiry);
-    let parent = pb.decode(ctx.body);
-    for (const field of path) {
-      assert.equal(parent.find(item => item.field === 80).value, 123n);
-      assert.equal(utf8.decode(find(parent, 81).value), "preserve");
-      parent = pb.decode(find(parent, field).value);
-    }
-    assert.equal(result.find(item => item.field === 80).value, 123n);
+    const result = account(ctx.body, path);
+    assert.equal(utf8.decode(find(result.get("type"), 4).value), "premium");
+    assert.equal(utf8.decode(find(result.get("player-license-v2"), 4).value), "premium");
+    assert.equal(result.get("ads").find(item => item.field === 2).value, 0n);
+    assert.equal(result.get("high-bitrate").find(item => item.field === 2).value, 0n);
+    assert.equal(result.has("audio-quality"), false);
+    for (const name of ["on-demand-trial", "shuffle", "smart-shuffle", "is-premium-eligible-v100"]) assert.equal(result.has(name), false);
+    assert.equal(result.has("is-premium-eligible-v101"), true);
+    assert.equal(utf8.decode(find(result.get("type"), 90).value), "value metadata");
+    const untouched = unwrap(ctx.body, [...path, 3]).find(item => item.wire === 2 && utf8.decode(find(pb.decode(item.value), 1).value) === "custom-untouched");
+    assert.deepEqual(bytes(untouched.value), bytes(attributes[8].value));
+    const configuration = unwrap(ctx.body, [...path, 1, 1]);
+    const assignments = configuration.filter(item => item.field === 3 && item.wire === 2);
+    assert.equal(assignments.length, 875);
+    assert.equal(assignments.some(item => key(item) === "live-scope::live-name"), false);
+    for (const blacklisted of config.blacklist) assert.equal(assignments.some(item => key(item) === blacklisted), false);
+    assert.equal(utf8.decode(find(configuration, 1).value), "live assignment id");
+    assert.equal(configuration.find(item => item.field === 4).value, 12345n);
+    assert.equal(configuration.find(item => item.field === 80).value, 456n);
+    const first = pb.decode(assignments[0].value), metadata = pb.decode(find(first, 2).value);
+    const expected = config.assignments.find(item => !config.blacklist.includes(item.propertyId.scope + "::" + item.propertyId.name));
+    assert.equal(metadata.find(item => item.field === 1).value, BigInt(expected.metadata.policyId));
+    assert.equal(pb.decode(ctx.body).some(item => item.field === 3 && item.wire === 2), false);
+    const expiry = Date.parse(utf8.decode(find(result.get("product-expiry"), 4).value));
+    assert.ok(expiry > Date.now() + 360 * 86400000 && expiry < Date.now() + 367 * 86400000);
     assert.equal(rt.calls.length, 0);
     assert.equal(rt.logs.length, 0);
   });
 }
-
-test("Spotify populates an empty successful map and a second rewrite adds no duplicate keys", async () => {
-  const { body, path } = fixture(false, true);
-  const ctx = response("https://spclient.wg.spotify.com/user-customization-service/v1/customize", body); ctx.method = "POST";
-  const rt = runtime("spotify");
-  await rt.run(ctx);
-  const first = map(unwrap(ctx.body, path));
-  assert.ok(first.size > 30);
-  await rt.run(ctx);
-  const result = unwrap(ctx.body, path);
-  assert.equal(result.filter(item => item.field === 1).length, first.size);
+test("snapshot replacement can be disabled without discarding live assignments", async () => {
+  const { body, path, live } = fixture();
+  const ctx = { ...response(url, body), method: "POST" };
+  await runtime("spotify", { replaceConfiguration: "false" }).run(ctx);
+  assert.equal(utf8.decode(find(account(ctx.body, path).get("type"), 4).value), "premium");
+  const values = unwrap(ctx.body, [...path, 1, 1]).filter(item => item.field === 3);
+  assert.equal(values.length, 1);
+  assert.deepEqual(bytes(values[0].value), bytes(live.value));
 });
-
-test("Spotify retains malformed, error, non-POST, unrelated, request-phase, and non-success bodies", async () => {
-  const url = "https://spclient.wg.spotify.com/user-customization-service/v1/customize";
-  for (const overrides of [
-    { body: Uint8Array.from([255]) },
-    { body: pb.encode([nested(2, [str(2, "server error")])]) },
-    { body: pb.encode([nested(1, [nested(4, [str(2, "account error")])])]) },
-    { method: "GET" }, { phase: "request" }, { status: 304 },
-    { url: url + "-extra" },
-    { url: url.replace("spclient.wg.spotify.com", "api.spotify.com") },
-    { url: url.replace("spclient.wg.spotify.com", "spclient.wg.spotify.com.evil.example") }
-  ]) {
+test("Spotify module retains bodies when disabled, malformed, missing success or configuration, or out of scope", async () => {
+  for (const overrides of [{ body: Uint8Array.from([255]) }, { body: pb.encode([nested(2, [str(1, "server error")])]) }, { body: fixture(false, false).body }, { method: "GET" }, { status: 304 }, { phase: "request" }, { url: url.replace("gew1-spclient", "api") }, { url: url.replace("spotify.com", "spotify.com.evil.example") }, { url: url.replace("customize?", "customize-extra?") }]) {
     const ctx = { ...response(url, fixture().body), method: "POST", ...overrides };
-    const original = ctx.body;
-    const rt = runtime("spotify");
-    equalBytes((await rt.run(ctx)).body, original);
+    const before = bytes(ctx.body), rt = runtime("spotify");
+    await rt.run(ctx);
+    assert.deepEqual(bytes(ctx.body), before);
     assert.equal(rt.calls.length, 0);
-    assert.equal(rt.logs.join().includes("server error"), false);
+  }
+  const ctx = { ...response(url, fixture().body), method: "POST" }, before = bytes(ctx.body);
+  await runtime("spotify", { applyRewrites: "false" }).run(ctx);
+  assert.deepEqual(bytes(ctx.body), before);
+});
+test("Spotify service rules return empty Gabo responses or local rejection only for selected API paths", async () => {
+  for (const [host, path, status] of [["spclient.wg", "gabo-receiver-service/v1", 200], ["gew1-spclient", "gabo-receiver-service/v1", 200], ["spclient.wg", "pendragon/v1", 403], ["gew1-spclient", "pam-view-service/v1/test", 403], ["spclient.wg", "playlist/v1/37i9dQZF1EYkqdzj48dyYq", 403]]) {
+    const ctx = { phase: "request", url: `https://${host}.spotify.com:443/${path}` };
+    const rt = runtime("spotify", {}, undefined, 0);
+    await rt.run(ctx);
+    assert.equal(rt.responses.length, 1);
+    assert.equal(rt.responses[0].status, status);
+    if (status === 200) assert.equal(rt.responses[0].body, "");
+    assert.equal(rt.responses[0].headers.some(([name]) => name.toLowerCase() === "alt-svc"), false);
+    const disabled = runtime("spotify", { applyRewrites: "false" }, undefined, 0);
+    await disabled.run(ctx);
+    assert.equal(disabled.responses.length, 0);
+  }
+  for (const path of ["pam-view-service/v1/test", "offline/v1/test", "pendragon-extra/test", "bootstrap/v1/bootstrap"]) {
+    const rt = runtime("spotify", {}, undefined, 0);
+    await rt.run({ phase: "request", url: `https://spclient.wg.spotify.com/${path}` });
+    assert.equal(rt.responses.length, 0);
   }
 });
-
-test("Spotify artist and album requests switch platform and strip :443 while keeping host and query", () => {
-  const rewrites = module.rules.filter(rule => Array.isArray(rule) && rule[1] === 0 && rule[3] === 0);
-  const rewrite = url => {
-    for (const rule of rewrites) {
-      const regex = new RegExp(rule[2]);
-      if (regex.test(url)) return url.replace(regex, rule[4]);
-    }
-    return url;
-  };
-  for (const scheme of ["http", "https"]) {
-    for (const host of ["spclient.wg.spotify.com", "gew1-spclient.spotify.com"]) {
-      for (const path of ["artistview/v1/artist/123", "album-entity-view/v2/album/123"]) {
-        assert.equal(rewrite(`${scheme}://${host}:443/${path}?foo=1&platform=iphone&bar=2`), `${scheme}://${host}/${path}?foo=1&platform=ipad&bar=2`);
-        assert.equal(rewrite(`${scheme}://${host}/${path}?platform=iphone`), `${scheme}://${host}/${path}?platform=ipad`);
-        assert.equal(rewrite(`${scheme}://${host}:443/${path}?platform=android`), `${scheme}://${host}/${path}?platform=android`);
-      }
-    }
+test("optional feed filtering removes structured fields and does not match tag bytes inside a payload", async () => {
+  const script = "scripts/spotify-feeds.js";
+  for (const [path, field, length] of [["browsita/v1/browse", 6, 12001], ["casita/v2/home/default", 21, 10], ["scrollsita/v3/scroll/spotify", 30, 10]]) {
+    const body = pb.encode([str(1, "keep"), { field, wire: 2, value: new Uint8Array(length) }, bool(80, 123)]);
+    const ctx = response("https://gew1-spclient.spotify.com/" + path, body);
+    const untouched = bytes(body);
+    await runtime("spotify", {}, undefined, 1, script).run(ctx);
+    assert.deepEqual(bytes(ctx.body), untouched);
+    const enabled = runtime("spotify", { filterFeedAds: "true" }, undefined, 1, script);
+    await enabled.run(ctx);
+    const fields = pb.decode(ctx.body);
+    assert.equal(fields.some(item => item.field === field), false);
+    assert.equal(utf8.decode(find(fields, 1).value), "keep");
+    assert.equal(fields.find(item => item.field === 80).value, 123n);
+    assert.equal(enabled.calls.length, 0);
+    const embedded = pb.encode([{ field: 1, wire: 2, value: body }]);
+    const nestedCtx = response(ctx.url, embedded);
+    await enabled.run(nestedCtx);
+    assert.deepEqual(bytes(nestedCtx.body), bytes(embedded));
   }
-  for (const url of ["https://api.spotify.com/artistview/v1/artist/123?platform=iphone", "https://spclient.wg.spotify.com/artistview/v1/artist/123?platform=iphone-extra", "https://spclient.wg.spotify.com/other?platform=iphone", "https://spclient.wg.spotify.com.evil.example/artistview/v1/artist/123?platform=iphone"]) assert.equal(rewrite(url), url);
 });
-
-test("Spotify deletes only customization cache validators and rejects only its ad paths", () => {
-  const deletion = module.rules.find(rule => Array.isArray(rule) && rule[1] === 2);
-  assert.equal(deletion[3], "If-None-Match");
-  assert.ok(new RegExp(deletion[2]).test("https://gew1-spclient.spotify.com:443/user-customization-service/v1/customize?version=1"));
-  assert.equal(new RegExp(deletion[2]).test("https://spclient.wg.spotify.com/other"), false);
-  const reject = module.rules.find(rule => Array.isArray(rule) && rule[1] === 0 && rule[3] === 2);
-  const regex = new RegExp(reject[2]);
-  for (const path of ["ads/123", "ad-logic/123", "ads"]) assert.ok(regex.test("https://spclient.wg.spotify.com/" + path));
-  for (const path of ["ads-extra/123", "bootstrap/v1/bootstrap"]) assert.equal(regex.test("https://spclient.wg.spotify.com/" + path), false);
-});
-
-test("Spotify routing helpers import as REJECT and Default and retain the original keyword policy", () => {
-  const definitions = JSON.parse(readFileSync(new URL("../routing.json", import.meta.url)));
-  assert.equal(definitions.find(item => item.id === "spotify-reject").routing, 2);
-  const network = definitions.find(item => item.id === "spotify-network");
-  assert.equal(network.routing, 0);
-  // A spotify.com suffix would outrank ad-domain keywords in the same tier.
-  assert.equal(network.rules.some(([type, value]) => type === 2 && value === "spotify.com"), false);
-  assert.ok(network.rules.some(([type, value]) => type === 3 && value === "spotify"));
-  for (const definition of definitions) {
-    const file = readFileSync(new URL("../routing/" + definition.id + ".arrs", import.meta.url), "utf8");
-    for (const [type, value] of definition.rules) assert.ok(file.includes(type + "," + value + "\n"));
+test("feed filtering preserves malformed, late, unrelated and short search fields", async () => {
+  const feedUrl = "https://spclient.wg.spotify.com/browsita/v1/browse";
+  const cases = [
+    { url: feedUrl, body: pb.encode([{ field: 6, wire: 2, value: new Uint8Array(12000) }]) },
+    { url: feedUrl, body: Uint8Array.from([255]) },
+    { url: feedUrl, body: pb.encode([{ field: 1, wire: 2, value: new Uint8Array(700) }, { field: 6, wire: 2, value: new Uint8Array(12001) }]) },
+    { url: feedUrl.replace("browsita", "unrelated"), body: pb.encode([{ field: 6, wire: 2, value: new Uint8Array(12001) }]) }
+  ];
+  for (const item of cases) {
+    const ctx = response(item.url, item.body), original = bytes(ctx.body);
+    await runtime("spotify", { filterFeedAds: "true" }, undefined, 1, "scripts/spotify-feeds.js").run(ctx);
+    assert.deepEqual(bytes(ctx.body), original);
   }
+});
+test("Spotify helper uses its own REJECT set and embedded configuration matches the data file", () => {
+  const manifest = JSON.parse(readFileSync(new URL("../modules.json", import.meta.url)));
+  assert.deepEqual(manifest.map(item => item.id).sort(), ["soundcloud", "spotify", "youtube"]);
+  assert.deepEqual(readdirSync(new URL("../modules/", import.meta.url)).filter(name => name.endsWith(".amrs")).sort(), ["soundcloud.amrs", "spotify.amrs", "youtube.amrs"]);
+  const routing = JSON.parse(readFileSync(new URL("../routing.json", import.meta.url))).find(item => item.id === "spotify-reject");
+  assert.equal(routing.routing, 2);
+  assert.deepEqual(routing.rules, [[2, "aet.spotify.com"]]);
+  assert.equal(module.rules.filter(item => !Array.isArray(item)).length, 3);
+  const text = readFileSync(new URL("../modules/spotify.amrs", import.meta.url), "utf8");
+  const line = text.split("\n").find(line => line.startsWith("1,100,") && line.includes("bootstrap"));
+  const encoded = line.slice(line.lastIndexOf(",") + 1);
+  const source = Buffer.from(encoded, "base64").toString("utf8");
+  const embedded = JSON.parse(source.match(/^const AML_CONFIG_DATA = (.*);/)[1]);
+  assert.deepEqual(embedded, config);
 });
