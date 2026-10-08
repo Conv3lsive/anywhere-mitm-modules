@@ -76,8 +76,10 @@ Manual import links:
 [ad and diagnostic blocking](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/be99056a6233fe2a3a1ae0d05625a4d5c50f4763/routing/spotify-reject.arrs),
 [Spotify proxy routing](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/be99056a6233fe2a3a1ae0d05625a4d5c50f4763/routing/spotify-network.arrs).
 
-Restart Spotify after enabling the sets. Enable Anywhere's QUIC blocking if
-HTTP/3 prevents MITM. `.arrs` cannot express a Spotify-only UDP rejection rule.
+Restart Spotify after enabling the sets. Start with **Block QUIC: Automatic**:
+Anywhere blocks QUIC for proxied destinations and MITM-listed hosts in this
+mode, allowing clients to fall back to TCP. `.arrs` cannot express a
+Spotify-only UDP rejection rule.
 If you previously added **Spotify Lyrics Translation**, remove or disable that
 set first so its more-specific hostname does not take precedence.
 
@@ -89,6 +91,33 @@ Premium, offline, high-bitrate, and audiobook attributes are local flags. The
 module does not create a paid server-side subscription, and downloads, Very High
 audio quality, audiobooks, or other server-controlled features may remain
 unavailable. Unsupported or error responses are kept unchanged.
+
+#### Tracks skip after a few seconds
+
+The [script author's instructions](https://github.com/app2smile/rules#spotify)
+explicitly exclude **Very High** audio quality. Similar 3–5 second skips are
+also reported in [upstream issue #274](https://github.com/app2smile/rules/issues/274);
+that report does not establish the cause of an individual failure.
+
+Test one change at a time, restarting Spotify and retrying the same tracks:
+
+1. Set streaming quality to **Normal** for both Wi-Fi and cellular. Keep QUIC
+   on **Automatic** for this first test.
+2. If skipping continues, temporarily test **Purify → Block QUIC → Unblocked**
+   with **Block UDP** off. HTTP/3 traffic can then bypass these MITM rules, so
+   this is a transport diagnostic, not a guaranteed Premium setup. Restore
+   **Automatic** if it makes no difference.
+3. Restore the initial QUIC setting, then temporarily disable **Spotify Ads &
+   Diagnostics** to check the extra domain blocks. Re-enable it if unchanged.
+4. Disable **Spotify Premium** MITM while retaining the same proxy route and
+   retry. If ordinary playback works only with MITM off, report that difference
+   along with the Spotify and Anywhere versions. If it still fails, compare
+   another fixed proxy before changing the script.
+
+Keep one fixed proxy throughout the first four tests. Include relevant error
+messages in a report, but omit authorization headers, cookies, and tokens.
+QUIC behavior is defined in Anywhere's
+[QUIC policy](https://github.com/NodePassProject/Anywhere/blob/main/Shared/Models/QUICPolicy.swift).
 
 ### SoundCloud Go+ Configuration
 

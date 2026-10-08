@@ -21,6 +21,11 @@ The parser check used the official parser and its rule models with storage/icon
 support shims for a standalone macOS harness. These modules have not been tested
 against a live YouTube, Spotify, or SoundCloud session in Anywhere.
 
+User feedback on 2026-10-08: Spotify 9.1.88.2209 skips tracks after a few seconds
+and then stops with this subscription in Anywhere and QUIC set to Automatic.
+The cause is not yet isolated; passing the checks above does not establish
+playback compatibility. See the README's playback troubleshooting steps.
+
 Repeat the portable checks:
 
 ```sh
