@@ -65,7 +65,7 @@ def main():
             path.write_bytes(data)
     if stale:
         raise SystemExit("Rebuild required: " + ", ".join(stale))
-    print("Verified generated rule sets and SHA-256 hashes." if args.check else "Built 3 MITM modules, 2 routing sets, and SHA-256 hashes.")
+    print("Verified generated rule sets and SHA-256 hashes." if args.check else "Built MITM modules, routing sets, and SHA-256 hashes.")
 
 
 if __name__ == "__main__":

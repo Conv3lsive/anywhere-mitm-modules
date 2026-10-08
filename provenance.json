@@ -33,10 +33,23 @@
       "source_url": "https://raw.githubusercontent.com/app2smile/rules/df6366a7024e0b3f0aa3510c5b791eea6f3cba89/js/spotify-qx-header.js",
       "source_commit": "df6366a7024e0b3f0aa3510c5b791eea6f3cba89",
       "downloaded_sha256": "77267bc9bdcc8a2bc8eb1e70fffaeee0fb0c097a076bc9040b6c430acf051f3c"
+    },
+    {
+      "module": "Spotify Ad Block Trial",
+      "component": "Spotify_remove_ads.js",
+      "source_url": "https://kelee.one/Resource/JavaScript/Spotify/Spotify_remove_ads.js",
+      "downloaded_sha256": "198cb5869d9710c56ed1945156c8f6227fdf9d19da38ee1c8870f4d72f26c6c8",
+      "downloaded_bytes": 9389,
+      "reviewed_on": "2026-10-08",
+      "reference_only": true
     }
   ],
   "spotify_module_reference": {
     "filename": "Spotify Premium.module.module",
     "sha256": "86f6a2a5f67dad5e03bb58e6232ab488622c00f7f05b362881f3cc782a120955"
+  },
+  "spotify_adblock_module_reference": {
+    "filename": "spotify.stoverride",
+    "sha256": "7deb64d0f3351cf74e2a96d1b4f76ab72538de88329bee9df04f87a1a4ec1f73"
   }
 }

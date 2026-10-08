@@ -87,5 +87,59 @@
       {"phase": 1, "pattern": "^https://api-mobile\\.soundcloud\\.com/configuration/ios(?:\\?|$)", "scripts": ["scripts/soundcloud.js"]}
     ],
     "parameters": []
+  },
+  {
+    "id": "spotify-adblock",
+    "name": "Spotify Ad Block Trial",
+    "description": "Experimental Spotify ad blocking with a smaller set of Premium account flags and optional service blocking.",
+    "hostnames": [
+      "spclient.wg.spotify.com",
+      "spotify.com"
+    ],
+    "rules": [
+      {
+        "phase": 0,
+        "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(pendragon|pushka-tokens|gabo-receiver-service|ad(?:s|-logic)?|offline)(?:[/?]|$)",
+        "scripts": [
+          "scripts/spotify-adblock-services.js"
+        ]
+      },
+      {
+        "phase": 1,
+        "pattern": "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:bootstrap/v1/bootstrap|user-customization-service/v1/customize)(?:\\?|$)",
+        "scripts": [
+          "scripts/spotify-adblock.js"
+        ]
+      }
+    ],
+    "parameters": [
+      [
+        1,
+        0,
+        "blockServices",
+        "Block extra service endpoints",
+        "Return local responses for selected ad, pendragon, gabo, pushka, and offline endpoints. Turn off to compare playback.",
+        "true",
+        "[true, false]"
+      ],
+      [
+        1,
+        0,
+        "tab",
+        "Hide Create tab",
+        "Changes the existing navigation configuration. Sign in again after changing this option.",
+        "false",
+        "[false, true]"
+      ],
+      [
+        1,
+        0,
+        "useractivity",
+        "Allow Apple Handoff",
+        "Keep the server setting for Apple device Handoff. Disable to turn sharing off; sign in again after changing this option.",
+        "true",
+        "[true, false]"
+      ]
+    ]
   }
 ]

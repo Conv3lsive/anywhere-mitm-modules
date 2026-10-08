@@ -1,6 +1,7 @@
 # Anywhere MITM Modules
 
 Three self-contained MITM modules for YouTube, Spotify, and SoundCloud.
+An optional Spotify Ad Block Trial provides a separate playback comparison.
 Readable JavaScript lives in [`scripts/`](scripts/); the `.amrs` subscriptions
 embed the code, so they never download scripts from another repository.
 
@@ -118,6 +119,38 @@ Keep one fixed proxy throughout the first four tests. Include relevant error
 messages in a report, but omit authorization headers, cookies, and tokens.
 QUIC behavior is defined in Anywhere's
 [QUIC policy](https://github.com/NodePassProject/Anywhere/blob/main/Shared/Models/QUICPolicy.swift).
+
+### Spotify Ad Block Trial
+
+An experimental alternative with ten account-attribute changes and optional
+local responses for selected service endpoints. It does not add the Premium
+module's high-bitrate, audiobook, catalogue, subscription-expiry, or shuffle
+attributes. Existing attributes outside its smaller set are preserved.
+This is a playback comparison, not a confirmed fix for Spotify 9.1.88.2209.
+
+Before testing, disable **Spotify Premium**, **Spotify Lyrics Translation**,
+and **Spotify Ads & Diagnostics**. Enable only **Spotify Ad Block Trial** for
+Spotify MITM, and keep **Spotify Network** assigned to the same fixed proxy.
+Use **Normal** streaming quality and **Block QUIC: Automatic** for the first
+test. Sign out and sign in again to refresh cached customization responses.
+
+- **Block extra service endpoints:** enabled by default. Returns local 200
+  responses for selected `pendragon`, `gabo-receiver-service`, `pushka-tokens`,
+  ad, and offline endpoints. If playback still stops, turn this off and restart
+  Spotify to compare the account rewrites alone.
+- **Hide Create tab:** disabled by default.
+- **Allow Apple Handoff:** enabled by default; retains the server's setting.
+  Disable to turn off the matching sharing flag.
+
+Sign in again after changing the UI options. The module hides the existing
+Your Plan side-drawer row. It leaves artist/album URLs unchanged and imports
+no additional ad-domain routing set. The scripts make no extra network requests
+and keep unsupported responses unchanged. Premium and offline flags remain
+local configuration; server-controlled features are not guaranteed.
+
+The trial is installed separately and is excluded from **Add all three**.
+Readable code: [account and UI settings](scripts/spotify-adblock.js),
+[service responses](scripts/spotify-adblock-services.js).
 
 ### SoundCloud Go+ Configuration
 

@@ -38,6 +38,10 @@
             ["Spotify Premium", "modules/spotify.amrs"],
             ["Spotify Ads & Diagnostics", "routing/spotify-reject.arrs"],
             ["Spotify Network", "routing/spotify-network.arrs"]
+          ] },
+          "spotify-adblock": { name: "Spotify Ad Block Trial", files: [
+            ["Spotify Ad Block Trial", "modules/spotify-adblock.amrs"],
+            ["Spotify Network", "routing/spotify-network.arrs"]
           ] }
         }),
         soundcloud: { name: "SoundCloud Go+ Configuration", files: [["SoundCloud Go+ Configuration", "modules/soundcloud.amrs"]] }
@@ -47,12 +51,15 @@
         document.getElementById("message").textContent = "Invalid module or version. Use an import link from the repository README.";
         return;
       }
-      const ids = selected === "all" ? Object.keys(modules) : [selected];
+      const ids = selected === "all" ? ["youtube", legacy ? "spotify-lyrics" : "spotify", "soundcloud"] : [selected];
       document.getElementById("title").textContent = selected === "all" ? "Add All Three Modules" : modules[selected].name;
       const files = ids.flatMap(id => modules[id].files);
       const links = files.map(([, path]) => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + ref + "/" + path);
       if (!legacy && ids.includes("spotify")) {
         document.getElementById("message").textContent = "Imports Spotify Premium and its two routing sets. In Anywhere Routing, select your proxy for Spotify Network and keep Spotify Ads & Diagnostics on REJECT.";
+      }
+      if (selected === "spotify-adblock") {
+        document.getElementById("message").textContent = "Experimental alternative. Disable Spotify Premium, Spotify Lyrics Translation, and Spotify Ads & Diagnostics before testing. Keep Spotify Network on your selected proxy. Start with Normal audio quality.";
       }
       const open = document.getElementById("open");
       open.href = "anywhere://add-rule-set?" + links.map(link => "link=" + encodeURIComponent(link)).join("&");

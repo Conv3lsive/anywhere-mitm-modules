@@ -9,6 +9,7 @@ tests, not a guarantee of safety or a live compatibility test of the target apps
 | --- | --- | --- |
 | YouTube | None. A matching CDN request may receive a redirect within `googlevideo.com`. | Bounded ad-classification identifiers in Anywhere's in-memory store. |
 | Spotify Premium | None. Artist/album request URLs may be rewritten within the same Spotify API host. | None. |
+| Spotify Ad Block Trial | None. Selected service requests can receive local synthetic 200 responses. | None. |
 | SoundCloud | None. | None. |
 
 All current scripts process responses locally. They do not send intercepted
@@ -39,6 +40,21 @@ Spotify account attributes, request URLs, or a cache-validator header. No
 active credential exfiltration or extra HTTP requests were found in these
 scripts. The protobuf.js runtime has dynamic-code machinery; this repository
 uses Anywhere's native protobuf codec instead of including that runtime.
+
+The Spotify Ad Block Trial references the user-provided `spotify.stoverride`
+and its provider `https://kelee.one/Resource/JavaScript/Spotify/Spotify_remove_ads.js`.
+The 9,389-byte provider fetched on the review date contains a protobuf codec,
+ten account-attribute changes, and selected UI configuration changes. No extra
+HTTP requests, credential logging, or dynamic-code downloads were found in that
+snapshot. Its schema-specific encoder drops unknown fields; the independent
+native implementation in this repository preserves them and retains the input
+body on unsupported responses. The original provider code is not redistributed.
+
+The trial corrects the input's malformed `pendragon` host pattern and narrows
+service paths to endpoint boundaries. Its optional service blocking includes
+offline and token-related endpoints, so it can affect functionality beyond ads.
+It is disabled as a group using **Block extra service endpoints**. Compatibility
+with Spotify 9.1.88.2209 and recovery from playback failures are unverified.
 
 Original provider URLs follow mutable branches. A source owner or compromised
 account could replace that code after a review. This repository does not fetch

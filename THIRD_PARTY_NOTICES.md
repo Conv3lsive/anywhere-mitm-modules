@@ -34,3 +34,13 @@ following third-party material retains its own license and attribution.
   `soundcloud.js`, snapshot `3ac7413fbcf58e2ca3e4a2b9353bccc9e4df6cce`.
 - `scripts/soundcloud.js` implements the observed configuration values with a
   native Anywhere entry point. No original standalone script is vendored.
+
+## Spotify Ad Block Trial behavior reference
+
+- The user-provided `spotify.stoverride` attributes its behavior to
+  [001ProMax](https://github.com/001ProMax) and references
+  `https://kelee.one/Resource/JavaScript/Spotify/Spotify_remove_ads.js`.
+- `scripts/spotify-adblock.js` and `scripts/spotify-adblock-services.js` are
+  independent implementations using Anywhere's native API. The downloaded
+  provider's codec and client entry points are not included or redistributed.
+- Reference fingerprints and review date are recorded in `provenance.json`.
