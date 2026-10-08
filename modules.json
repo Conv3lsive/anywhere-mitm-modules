@@ -1,0 +1,46 @@
+[
+  {
+    "id": "youtube",
+    "name": "YouTube Ad Block & Playback",
+    "description": "Removes supported ad placements and enables picture-in-picture and background playback flags.",
+    "hostnames": ["youtubei.googleapis.com", "www.youtube.com", "s.youtube.com", "googlevideo.com"],
+    "rules": [
+      [0, 0, "^https?://((?!redirector)[\\w-]+\\.googlevideo\\.com)/((?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+)", 1, "https://$1/$2$3$4"],
+      [0, 0, "^https?://(?!redirector)[\\w-]+\\.googlevideo\\.com/(?!(?:dclk_video_ads|videoplayback\\?)).+&oad", 2, ""],
+      [0, 0, "^https?://(?:www|s)\\.youtube\\.com/api/stats/ads(?:[/?]|$)", 2, ""],
+      [0, 0, "^https?://(?:www|s)\\.youtube\\.com/(?:pagead|ptracking)(?:[/?]|$)", 2, ""],
+      [0, 0, "^https?://s\\.youtube\\.com/api/stats/qoe\\?adcontext", 2, ""],
+      {"phase": 1, "pattern": "^https://youtubei\\.googleapis\\.com/youtubei/v1/(?:browse|next|player|search|reel/reel_watch_sequence|guide|account/get_setting|get_watch)(?:\\?|$)", "scripts": ["scripts/vendor/youtube-core.js", "scripts/youtube.js"]}
+    ],
+    "parameters": [
+      [1, 0, "blockUpload", "Hide upload button", "Hide the upload tab in supported navigation responses.", "true", "[true, false]"],
+      [1, 0, "blockImmersive", "Hide immersive tab", "Hide the immersive music tab in supported navigation responses.", "true", "[true, false]"],
+      [1, 0, "blockShorts", "Hide Shorts tab", "Hide the Shorts tab in supported navigation responses.", "false", "[false, true]"]
+    ]
+  },
+  {
+    "id": "spotify-lyrics",
+    "name": "Spotify Lyrics Translation",
+    "description": "Adds translated lyrics through your own Baidu Translate API account.",
+    "hostnames": ["spclient.wg.spotify.com"],
+    "rules": [
+      {"phase": 1, "pattern": "^https://spclient\\.wg\\.spotify\\.com/color-lyrics/v2/track/[^/?]+(?:\\?|$)", "scripts": ["scripts/spotify-lyrics.js"]}
+    ],
+    "parameters": [
+      [1, 0, "translationEnabled", "Enable translation", "When enabled, lyric text is sent to Baidu Translate using your API account.", "false", "[false, true]"],
+      [0, 0, "appid", "Baidu App ID", "Your Baidu Translate application ID.", ""],
+      [0, 0, "securityKey", "Baidu API key", "Your private Baidu Translate signing key. Keep it in the app.", ""],
+      [1, 0, "targetLanguage", "Target language", "zh: Chinese; en: English; ru: Russian; de: German; fr: French; spa: Spanish; jp: Japanese; kor: Korean.", "zh", "[zh, en, ru, de, fr, spa, jp, kor]"]
+    ]
+  },
+  {
+    "id": "soundcloud",
+    "name": "SoundCloud Go+ Configuration",
+    "description": "Sets local Go+ plan and playback feature flags in the iOS configuration response.",
+    "hostnames": ["api-mobile.soundcloud.com"],
+    "rules": [
+      {"phase": 1, "pattern": "^https://api-mobile\\.soundcloud\\.com/configuration/ios(?:\\?|$)", "scripts": ["scripts/soundcloud.js"]}
+    ],
+    "parameters": []
+  }
+]

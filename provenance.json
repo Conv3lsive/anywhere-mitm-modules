@@ -1,0 +1,23 @@
+{
+  "reviewed_on": "2026-10-08",
+  "sources": [
+    {
+      "module": "YouTube",
+      "source_url": "https://raw.githubusercontent.com/Maasea/sgmodule/65075cdb388fc5e3094afd7e7314c67b243f3525/Script/Youtube/youtube.response.js",
+      "source_commit": "65075cdb388fc5e3094afd7e7314c67b243f3525",
+      "downloaded_sha256": "f98483d5f5017514f82502253c0db5ce2d4ffb7839887aa2cadc22666f5a7f12"
+    },
+    {
+      "module": "Spotify lyrics",
+      "source_url": "https://raw.githubusercontent.com/app2smile/rules/df6366a7024e0b3f0aa3510c5b791eea6f3cba89/js/spotify-lyric.js",
+      "source_commit": "df6366a7024e0b3f0aa3510c5b791eea6f3cba89",
+      "downloaded_sha256": "581d095b13b2a94fbc88ca95d4cccdc99a7759a15be2096f58fdf8d0ba17290e"
+    },
+    {
+      "module": "SoundCloud",
+      "source_url": "https://raw.githubusercontent.com/Marol62926/MarScrpt/3ac7413fbcf58e2ca3e4a2b9353bccc9e4df6cce/soundcloud.js",
+      "source_commit": "3ac7413fbcf58e2ca3e4a2b9353bccc9e4df6cce",
+      "downloaded_sha256": "f76ad35cf7be218ee5fa1905df053c6b6c3ba4949d030883cf13c39ba35de22f"
+    }
+  ]
+}
