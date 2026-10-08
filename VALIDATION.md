@@ -31,6 +31,10 @@ User feedback on 2026-10-08: Spotify 9.1.88.2209 skips tracks after a few second
 and then stops with this subscription in Anywhere and QUIC set to Automatic.
 The cause is not yet isolated; passing the checks above does not establish
 playback compatibility. See the README's playback troubleshooting steps.
+The user subsequently reported that the Ad Block Trial also failed after
+following its setup instructions. The same track plays normally through the
+same proxy when all Spotify MITM modules are disabled. This comparison does
+not yet isolate HTTPS interception from the module's mutations.
 
 Repeat the portable checks:
 

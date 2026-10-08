@@ -134,6 +134,10 @@ local responses for selected service endpoints. It does not add the Premium
 module's high-bitrate, audiobook, catalogue, subscription-expiry, or shuffle
 attributes. Existing attributes outside its smaller set are preserved.
 This is a playback comparison, not a confirmed fix for Spotify 9.1.88.2209.
+User feedback on 2026-10-08: the trial did not resolve playback skips on that
+version; the same track plays normally through the same proxy with Spotify
+MITM disabled. See [current module research](SPOTIFY_RESEARCH.md) for reviewed
+alternatives and the limits of their compatibility claims.
 
 Before testing, disable **Spotify Premium**, **Spotify Lyrics Translation**,
 and **Spotify Ads & Diagnostics**. Enable only **Spotify Ad Block Trial** for
