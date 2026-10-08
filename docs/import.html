@@ -27,7 +27,9 @@
   <script>
     (() => {
       const query = new URLSearchParams(location.search);
-      const ref = query.get("ref") || "be99056a6233fe2a3a1ae0d05625a4d5c50f4763";
+      const ref = query.get("ref") || (query.get("module") === "spotify-adblock"
+        ? "9dc12435a05ea2b4d2d9d28fe435a2304638aa15"
+        : "be99056a6233fe2a3a1ae0d05625a4d5c50f4763");
       const legacy = ref === "ffa77ba7eb57701a16b79beb1d6c4393610ae7fe";
       const modules = {
         youtube: { name: "YouTube Ad Block & Playback", files: [["YouTube Ad Block & Playback", "modules/youtube.amrs"]] },

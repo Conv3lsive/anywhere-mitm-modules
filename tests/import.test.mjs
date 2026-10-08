@@ -44,6 +44,8 @@ test("the Spotify trial imports separately with only its network routing helper"
   const links = new URL(elements.open.href).searchParams.getAll("link");
   assert.deepEqual(links, ["modules/spotify-adblock.amrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/" + path));
   assert.match(elements.message.textContent, /Disable Spotify Premium/);
+  const defaultLinks = new URL(page("?module=spotify-adblock").open.href).searchParams.getAll("link");
+  assert.ok(defaultLinks.every(link => link.includes("/9dc12435a05ea2b4d2d9d28fe435a2304638aa15/")));
 });
 
 test("earlier pinned links keep importing the original three modules", () => {

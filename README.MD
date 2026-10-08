@@ -18,6 +18,9 @@ Install [Anywhere](https://github.com/NodePassProject/Anywhere), then open an
 
 **[Add all three](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=all&ref=be99056a6233fe2a3a1ae0d05625a4d5c50f4763)**
 
+Optional: **[Add Spotify Ad Block Trial](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify-adblock&ref=9dc12435a05ea2b4d2d9d28fe435a2304638aa15)**
+for a separate playback comparison. Read its setup instructions below.
+
 Quick-add links use a fixed commit. Refreshing these subscriptions keeps the
 same reviewed code. The import page has no external scripts or analytics.
 
@@ -122,6 +125,10 @@ QUIC behavior is defined in Anywhere's
 
 ### Spotify Ad Block Trial
 
+[Quick add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify-adblock&ref=9dc12435a05ea2b4d2d9d28fe435a2304638aa15)
+imports the trial MITM module and **Spotify Network**. For manual import,
+[copy the subscription URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/9dc12435a05ea2b4d2d9d28fe435a2304638aa15/modules/spotify-adblock.amrs).
+
 An experimental alternative with ten account-attribute changes and optional
 local responses for selected service endpoints. It does not add the Premium
 module's high-bitrate, audiobook, catalogue, subscription-expiry, or shuffle
@@ -162,7 +169,9 @@ subscription or guarantee access to paid tracks, downloads, or audio quality.
 
 ## Versions and integrity
 
-The quick-add links pin the modules to commit `be99056a6233fe2a3a1ae0d05625a4d5c50f4763`. The scripts are
+The three primary modules are pinned to commit
+`be99056a6233fe2a3a1ae0d05625a4d5c50f4763`; the optional Spotify trial is pinned
+to `9dc12435a05ea2b4d2d9d28fe435a2304638aa15`. The scripts are
 embedded in each `.amrs` file and are also available in this repository for
 inspection. There are no automatic upstream script updates.
 
@@ -170,6 +179,7 @@ For subscriptions that follow this repository's future changes, use:
 
 - [YouTube — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/youtube.amrs)
 - [Spotify Premium — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/spotify.amrs)
+- [Spotify Ad Block Trial — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/spotify-adblock.amrs)
 - [Spotify ad blocking — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/routing/spotify-reject.arrs)
 - [Spotify proxy routing — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/routing/spotify-network.arrs)
 - [SoundCloud — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/soundcloud.amrs)
