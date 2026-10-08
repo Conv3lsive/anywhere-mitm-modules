@@ -19,23 +19,32 @@ function page(search) {
 }
 
 test("quick add creates the documented Anywhere deep link for a pinned module", () => {
-  const elements = page("?module=spotify-lyrics&ref=" + sha);
+  const elements = page("?module=spotify&ref=" + sha);
   const link = new URL(elements.open.href);
   assert.equal(link.protocol, "anywhere:");
   assert.equal(link.hostname, "add-rule-set");
-  assert.deepEqual(link.searchParams.getAll("link"), ["https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/modules/spotify-lyrics.amrs"]);
+  assert.deepEqual(link.searchParams.getAll("link"), ["modules/spotify.amrs", "routing/spotify-reject.arrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/" + path));
   assert.equal(elements.open.hidden, false);
-  assert.equal(elements.urls.children.length, 1);
+  assert.equal(elements.urls.children.length, 3);
+  assert.match(elements.message.textContent, /select your proxy/);
 });
 
-test("add all carries three independently importable rule-set URLs", () => {
+test("add all carries three MITM modules and two Spotify routing helpers", () => {
   const elements = page("?module=all&ref=" + sha);
   const links = new URL(elements.open.href).searchParams.getAll("link");
-  assert.equal(links.length, 3);
-  assert.equal(elements.urls.children.length, 3);
+  assert.equal(links.length, 5);
+  assert.equal(elements.urls.children.length, 5);
   for (const link of links) {
-    assert.match(link, new RegExp("^https://raw\\.githubusercontent\\.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/modules/(youtube|spotify-lyrics|soundcloud)\\.amrs$"));
+    assert.match(link, new RegExp("^https://raw\\.githubusercontent\\.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/(?:modules/(?:youtube|spotify|soundcloud)\\.amrs|routing/spotify-(?:reject|network)\\.arrs)$"));
   }
+});
+
+test("earlier pinned links keep importing the original three modules", () => {
+  const old = "ffa77ba7eb57701a16b79beb1d6c4393610ae7fe";
+  const links = new URL(page("?module=all&ref=" + old).open.href).searchParams.getAll("link");
+  assert.equal(links.length, 3);
+  assert.ok(links.some(link => link.endsWith("/modules/spotify-lyrics.amrs")));
+  assert.equal(new URL(page("?module=spotify-lyrics&ref=" + old).open.href).searchParams.getAll("link").length, 1);
 });
 
 test("the import page rejects unknown modules, mutable refs, and injected URLs", () => {

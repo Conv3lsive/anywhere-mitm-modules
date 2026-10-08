@@ -26,21 +26,34 @@
   <noscript>Enable JavaScript for the import button, or copy a subscription URL from the repository README.</noscript>
   <script>
     (() => {
-      const modules = {
-        youtube: "YouTube Ad Block & Playback",
-        "spotify-lyrics": "Spotify Lyrics Translation",
-        soundcloud: "SoundCloud Go+ Configuration"
-      };
       const query = new URLSearchParams(location.search);
-      const ref = query.get("ref") || "ffa77ba7eb57701a16b79beb1d6c4393610ae7fe";
+      const ref = query.get("ref") || "be99056a6233fe2a3a1ae0d05625a4d5c50f4763";
+      const legacy = ref === "ffa77ba7eb57701a16b79beb1d6c4393610ae7fe";
+      const modules = {
+        youtube: { name: "YouTube Ad Block & Playback", files: [["YouTube Ad Block & Playback", "modules/youtube.amrs"]] },
+        ...(legacy ? {
+          "spotify-lyrics": { name: "Spotify Lyrics Translation", files: [["Spotify Lyrics Translation", "modules/spotify-lyrics.amrs"]] }
+        } : {
+          spotify: { name: "Spotify Premium", files: [
+            ["Spotify Premium", "modules/spotify.amrs"],
+            ["Spotify Ads & Diagnostics", "routing/spotify-reject.arrs"],
+            ["Spotify Network", "routing/spotify-network.arrs"]
+          ] }
+        }),
+        soundcloud: { name: "SoundCloud Go+ Configuration", files: [["SoundCloud Go+ Configuration", "modules/soundcloud.amrs"]] }
+      };
       const selected = query.get("module") || "all";
       if (!/^[a-f0-9]{40}$/.test(ref) || (selected !== "all" && !Object.hasOwn(modules, selected))) {
         document.getElementById("message").textContent = "Invalid module or version. Use an import link from the repository README.";
         return;
       }
       const ids = selected === "all" ? Object.keys(modules) : [selected];
-      document.getElementById("title").textContent = selected === "all" ? "Add All Three Modules" : modules[selected];
-      const links = ids.map(id => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + ref + "/modules/" + id + ".amrs");
+      document.getElementById("title").textContent = selected === "all" ? "Add All Three Modules" : modules[selected].name;
+      const files = ids.flatMap(id => modules[id].files);
+      const links = files.map(([, path]) => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + ref + "/" + path);
+      if (!legacy && ids.includes("spotify")) {
+        document.getElementById("message").textContent = "Imports Spotify Premium and its two routing sets. In Anywhere Routing, select your proxy for Spotify Network and keep Spotify Ads & Diagnostics on REJECT.";
+      }
       const open = document.getElementById("open");
       open.href = "anywhere://add-rule-set?" + links.map(link => "link=" + encodeURIComponent(link)).join("&");
       open.hidden = false;
@@ -48,7 +61,7 @@
         const item = document.createElement("p");
         item.className = "url";
         const name = document.createElement("strong");
-        name.textContent = modules[ids[i]];
+        name.textContent = files[i][0];
         const url = document.createElement("a");
         url.href = links[i];
         url.textContent = links[i];

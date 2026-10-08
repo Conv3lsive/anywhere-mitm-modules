@@ -11,11 +11,11 @@ Install [Anywhere](https://github.com/NodePassProject/Anywhere), then open an
 
 | Module | What it does | Quick add | Subscription |
 | --- | --- | --- | --- |
-| **YouTube Ad Block & Playback** | Removes supported ads; enables picture-in-picture and background playback flags. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=youtube&ref=ffa77ba7eb57701a16b79beb1d6c4393610ae7fe) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/ffa77ba7eb57701a16b79beb1d6c4393610ae7fe/modules/youtube.amrs) |
-| **Spotify Lyrics Translation** | Adds translated lyrics using your own Baidu Translate API account. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify-lyrics&ref=ffa77ba7eb57701a16b79beb1d6c4393610ae7fe) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/ffa77ba7eb57701a16b79beb1d6c4393610ae7fe/modules/spotify-lyrics.amrs) |
-| **SoundCloud Go+ Configuration** | Sets local Go+ plan and playback feature flags for the iOS app. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=soundcloud&ref=ffa77ba7eb57701a16b79beb1d6c4393610ae7fe) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/ffa77ba7eb57701a16b79beb1d6c4393610ae7fe/modules/soundcloud.amrs) |
+| **YouTube Ad Block & Playback** | Removes supported ads; enables picture-in-picture and background playback flags. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=youtube&ref=be99056a6233fe2a3a1ae0d05625a4d5c50f4763) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/be99056a6233fe2a3a1ae0d05625a4d5c50f4763/modules/youtube.amrs) |
+| **Spotify Premium** | Sets Premium playback flags, removes supported ads and shuffle restrictions, and adjusts mobile API requests. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify&ref=be99056a6233fe2a3a1ae0d05625a4d5c50f4763) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/be99056a6233fe2a3a1ae0d05625a4d5c50f4763/modules/spotify.amrs) |
+| **SoundCloud Go+ Configuration** | Sets local Go+ plan and playback feature flags for the iOS app. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=soundcloud&ref=be99056a6233fe2a3a1ae0d05625a4d5c50f4763) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/be99056a6233fe2a3a1ae0d05625a4d5c50f4763/modules/soundcloud.amrs) |
 
-**[Add all three](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=all&ref=ffa77ba7eb57701a16b79beb1d6c4393610ae7fe)**
+**[Add all three](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=all&ref=be99056a6233fe2a3a1ae0d05625a4d5c50f4763)**
 
 Quick-add links use a fixed commit. Refreshing these subscriptions keeps the
 same reviewed code. The import page has no external scripts or analytics.
@@ -48,27 +48,47 @@ Uses `youtubei.googleapis.com`, `www.youtube.com`, `s.youtube.com`, and
 intercepts redirector hosts; the CDN rewrite rules leave those requests
 unchanged. Features depend on the YouTube app version and response format.
 
-### Spotify Lyrics Translation
+### Spotify Premium
 
-Open the module's parameters and fill in:
+Rewrites Spotify's bootstrap and customization responses with Premium account
+attributes: ad-free playback, on-demand playback, unrestricted selection, and
+disabled forced shuffle. It also changes artist/album requests from
+`platform=iphone` to `platform=ipad` and removes the customization cache
+validator so Spotify can fetch a fresh response.
 
-| Parameter | Value |
-| --- | --- |
-| **Baidu App ID** | Your application's App ID. |
-| **Baidu API key** | Your private signing key. Enter it in Anywhere. |
-| **Target language** | `zh` Chinese (default), `en` English, `ru` Russian, `de` German, `fr` French, `spa` Spanish, `jp` Japanese, or `kor` Korean. |
-| **Enable translation** | Switch to `true` after configuring your API account. |
+No API keys or translation account are needed. All script processing is local;
+the module makes no extra network requests.
 
-Get credentials from [Baidu Translate](https://fanyi-api.baidu.com/). Translation
-is off by default. When enabled, lyric text, App ID, a random salt, and an MD5
-signature are sent over HTTPS to `fanyi-api.baidu.com`. Spotify authorization
-headers and cookies are not forwarded; the signing key is not sent as a field.
-API quotas or fees depend on your Baidu account.
+**The Add button imports three sets:**
 
-Supports JSON and protobuf lyric responses and preserves original lines and
-timing. Missing lyrics, API errors, and unsupported responses pass through
-unchanged. This module handles lyric translation; it does not change your
-Spotify subscription.
+| Set | Where to configure it | Action |
+| --- | --- | --- |
+| **Spotify Premium** | MITM | Enable. |
+| **Spotify Ads & Diagnostics** | Routing | Keep on **REJECT** (selected on first import). |
+| **Spotify Network** | Routing | Select your existing proxy or **PROXY**. |
+
+Use **Rule** mode for the routing sets. Leave the built-in Spotify routing set
+on **Default** so it does not override the custom reject rules. Domain rules
+follow Anywhere's routing priority; the `spotify` keyword also matches hostnames
+containing that word outside `spotify.com`.
+
+Manual import links:
+[ad and diagnostic blocking](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/be99056a6233fe2a3a1ae0d05625a4d5c50f4763/routing/spotify-reject.arrs),
+[Spotify proxy routing](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/be99056a6233fe2a3a1ae0d05625a4d5c50f4763/routing/spotify-network.arrs).
+
+Restart Spotify after enabling the sets. Enable Anywhere's QUIC blocking if
+HTTP/3 prevents MITM. `.arrs` cannot express a Spotify-only UDP rejection rule.
+If you previously added **Spotify Lyrics Translation**, remove or disable that
+set first so its more-specific hostname does not take precedence.
+
+Anywhere's suffix matching requires intercepting `spotify.com` to cover regional
+`*-spclient.spotify.com` hosts. Only the listed API and ad paths are rewritten;
+other intercepted Spotify requests are forwarded unchanged.
+
+Premium, offline, high-bitrate, and audiobook attributes are local flags. The
+module does not create a paid server-side subscription, and downloads, Very High
+audio quality, audiobooks, or other server-controlled features may remain
+unavailable. Unsupported or error responses are kept unchanged.
 
 ### SoundCloud Go+ Configuration
 
@@ -80,14 +100,16 @@ subscription or guarantee access to paid tracks, downloads, or audio quality.
 
 ## Versions and integrity
 
-The quick-add links pin the modules to commit `ffa77ba7eb57701a16b79beb1d6c4393610ae7fe`. The scripts are
+The quick-add links pin the modules to commit `be99056a6233fe2a3a1ae0d05625a4d5c50f4763`. The scripts are
 embedded in each `.amrs` file and are also available in this repository for
 inspection. There are no automatic upstream script updates.
 
 For subscriptions that follow this repository's future changes, use:
 
 - [YouTube — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/youtube.amrs)
-- [Spotify lyrics — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/spotify-lyrics.amrs)
+- [Spotify Premium — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/spotify.amrs)
+- [Spotify ad blocking — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/routing/spotify-reject.arrs)
+- [Spotify proxy routing — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/routing/spotify-network.arrs)
 - [SoundCloud — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/soundcloud.amrs)
 
 Those `main` links change when this repository is updated. Review changes before
