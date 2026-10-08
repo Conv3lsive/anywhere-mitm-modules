@@ -19,19 +19,64 @@
     ]
   },
   {
-    "id": "spotify-lyrics",
-    "name": "Spotify Lyrics Translation",
-    "description": "Adds translated lyrics through your own Baidu Translate API account.",
-    "hostnames": ["spclient.wg.spotify.com"],
-    "rules": [
-      {"phase": 1, "pattern": "^https://spclient\\.wg\\.spotify\\.com/color-lyrics/v2/track/[^/?]+(?:\\?|$)", "scripts": ["scripts/spotify-lyrics.js"]}
+    "id": "spotify",
+    "name": "Spotify Premium",
+    "description": "Sets Premium playback attributes, disables supported ads and shuffle restrictions, and adjusts mobile API requests.",
+    "hostnames": [
+      "spclient.wg.spotify.com",
+      "spotify.com"
     ],
-    "parameters": [
-      [1, 0, "translationEnabled", "Enable translation", "When enabled, lyric text is sent to Baidu Translate using your API account.", "false", "[false, true]"],
-      [0, 0, "appid", "Baidu App ID", "Your Baidu Translate application ID.", ""],
-      [0, 0, "securityKey", "Baidu API key", "Your private Baidu Translate signing key. Keep it in the app.", ""],
-      [1, 0, "targetLanguage", "Target language", "zh: Chinese; en: English; ru: Russian; de: German; fr: French; spa: Spanish; jp: Japanese; kor: Korean.", "zh", "[zh, en, ru, de, fr, spa, jp, kor]"]
-    ]
+    "rules": [
+      [
+        0,
+        2,
+        "^https?://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/user-customization-service/v1/customize(?:\\?|$)",
+        "If-None-Match"
+      ],
+      [
+        0,
+        0,
+        "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/((?:artistview/v1/artist|album-entity-view/v2/album)/[^#]*?)([?&])platform=iphone(?=&|$)(.*)$",
+        0,
+        "https://$1/$2$3platform=ipad$4"
+      ],
+      [
+        0,
+        0,
+        "^https://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com):443/((?:artistview/v1/artist|album-entity-view/v2/album)/.*)$",
+        0,
+        "https://$1/$2"
+      ],
+      [
+        0,
+        0,
+        "^http://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/((?:artistview/v1/artist|album-entity-view/v2/album)/[^#]*?)([?&])platform=iphone(?=&|$)(.*)$",
+        0,
+        "http://$1/$2$3platform=ipad$4"
+      ],
+      [
+        0,
+        0,
+        "^http://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com):443/((?:artistview/v1/artist|album-entity-view/v2/album)/.*)$",
+        0,
+        "http://$1/$2"
+      ],
+      [
+        0,
+        0,
+        "^https?://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:ad-logic|ads)(?:[/?]|$)",
+        2,
+        ""
+      ],
+      {
+        "phase": 1,
+        "pattern": "^https?://(spclient\\.wg\\.spotify\\.com|[\\w.-]+-spclient\\.spotify\\.com)(?::443)?/(?:bootstrap/v1/bootstrap|user-customization-service/v1/customize)(?:\\?|$)",
+        "scripts": [
+          "scripts/spotify-premium.js"
+        ]
+      }
+    ],
+    "parameters": []
   },
   {
     "id": "soundcloud",

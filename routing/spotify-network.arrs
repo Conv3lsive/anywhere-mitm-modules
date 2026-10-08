@@ -1,0 +1,8 @@
+# Assign this set to your Spotify proxy or PROXY in Anywhere Routing.
+name = Spotify Network
+routing = 0
+
+3,spotify
+2,scdn.co
+2,pscdn.co
+2,spoti.fi

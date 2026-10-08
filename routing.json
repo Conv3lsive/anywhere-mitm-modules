@@ -1,0 +1,27 @@
+[
+  {
+    "id": "spotify-reject",
+    "name": "Spotify Ads & Diagnostics",
+    "description": "Reject Spotify ad delivery and diagnostic domains.",
+    "routing": 2,
+    "rules": [
+      [2, "ads-ak-spotify-com.akamaized.net"],
+      [2, "crashdump.spotify.com"],
+      [2, "log.spotify.com"],
+      [3, "-ad-logic"],
+      [3, "ads-ak-ent"]
+    ]
+  },
+  {
+    "id": "spotify-network",
+    "name": "Spotify Network",
+    "description": "Assign this set to your Spotify proxy or PROXY in Anywhere Routing.",
+    "routing": 0,
+    "rules": [
+      [3, "spotify"],
+      [2, "scdn.co"],
+      [2, "pscdn.co"],
+      [2, "spoti.fi"]
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+# Reject Spotify ad delivery and diagnostic domains.
+name = Spotify Ads & Diagnostics
+routing = 2
+
+2,ads-ak-spotify-com.akamaized.net
+2,crashdump.spotify.com
+2,log.spotify.com
+3,-ad-logic
+3,ads-ak-ent

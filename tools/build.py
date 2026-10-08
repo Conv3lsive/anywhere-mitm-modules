@@ -36,6 +36,13 @@ def artifacts():
             lines.append("\n[Parameter]\n")
             lines.extend(row(parameter) for parameter in module["parameters"])
         yield ROOT / "modules" / (module["id"] + ".amrs"), "".join(lines).encode()
+    for routing in json.loads((ROOT / "routing.json").read_text()):
+        lines = ["# " + routing["description"] + "\n", "name = " + routing["name"] + "\n"]
+        if "routing" in routing:
+            lines.append("routing = " + str(routing["routing"]) + "\n")
+        lines.append("\n")
+        lines.extend(row(rule) for rule in routing["rules"])
+        yield ROOT / "routing" / (routing["id"] + ".arrs"), "".join(lines).encode()
 
 
 def main():
@@ -43,7 +50,7 @@ def main():
     parser.add_argument("--check", action="store_true", help="verify generated files and hashes without editing")
     args = parser.parse_args()
     generated = dict(artifacts())
-    sources = [ROOT / "modules.json", *sorted((ROOT / "scripts").rglob("*.js"))]
+    sources = [ROOT / "modules.json", ROOT / "routing.json", *sorted((ROOT / "scripts").rglob("*.js"))]
     hashed = {**{path: path.read_bytes() for path in sources}, **generated}
     sums = "".join(hashlib.sha256(data).hexdigest() + "  " + str(path.relative_to(ROOT)) + "\n"
                    for path, data in sorted(hashed.items()))
@@ -58,7 +65,7 @@ def main():
             path.write_bytes(data)
     if stale:
         raise SystemExit("Rebuild required: " + ", ".join(stale))
-    print("Verified generated modules and SHA-256 hashes." if args.check else "Built 3 modules and SHA-256 hashes.")
+    print("Verified generated rule sets and SHA-256 hashes." if args.check else "Built 3 MITM modules, 2 routing sets, and SHA-256 hashes.")
 
 
 if __name__ == "__main__":
