@@ -29,7 +29,7 @@ test("quick add creates the documented Anywhere deep link for a pinned module", 
   assert.match(elements.message.textContent, /select your proxy/);
   assert.match(elements.message.textContent, /Playback confirmed by a user/);
   const defaults = new URL(page("?module=spotify").open.href).searchParams.getAll("link");
-  assert.deepEqual(defaults, ["modules/spotify.amrs", "routing/spotify-reject.arrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/" + path));
+  assert.deepEqual(defaults, ["modules/spotify.amrs", "routing/spotify-reject.arrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/85dc221246a0ba7bd9e41c807102b2b9afa29f48/" + path));
 });
 
 test("add all carries four MITM modules and two Spotify routing helpers", () => {
@@ -49,6 +49,8 @@ test("Reddit imports alone and describes its optional sensitive-content setting"
   assert.deepEqual(links, ["https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/modules/reddit.amrs"]);
   assert.match(elements.message.textContent, /NSFW prompts is on by default/);
   assert.match(elements.message.textContent, /No forced translation/);
+  const defaults = new URL(page("?module=reddit").open.href).searchParams.getAll("link");
+  assert.deepEqual(defaults, ["https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/85dc221246a0ba7bd9e41c807102b2b9afa29f48/modules/reddit.amrs"]);
 });
 
 test("older pinned add-all links keep their three original modules", () => {

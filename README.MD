@@ -11,12 +11,12 @@ Install [Anywhere](https://github.com/NodePassProject/Anywhere), then open an
 
 | Module | What it does | Quick add | Subscription |
 | --- | --- | --- | --- |
-| **YouTube Ad Block & Playback** | Removes supported ads; enables picture-in-picture and background playback flags. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=youtube&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/modules/youtube.amrs) |
-| **Spotify Premium** | Enables Premium playback controls, removes trial restrictions, and blocks selected ads. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/modules/spotify.amrs) |
-| **SoundCloud Go+ Configuration** | Sets local Go+ plan and playback feature flags for the iOS app. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=soundcloud&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/modules/soundcloud.amrs) |
-| **Reddit Ad Block** | Removes supported feed and comment ads, with an optional NSFW prompt setting. | Release link below | [View module](modules/reddit.amrs) |
+| **YouTube Ad Block & Playback** | Removes supported ads; enables picture-in-picture and background playback flags. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=youtube&ref=85dc221246a0ba7bd9e41c807102b2b9afa29f48) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/85dc221246a0ba7bd9e41c807102b2b9afa29f48/modules/youtube.amrs) |
+| **Spotify Premium** | Enables Premium playback controls, removes trial restrictions, and blocks selected ads. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify&ref=85dc221246a0ba7bd9e41c807102b2b9afa29f48) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/85dc221246a0ba7bd9e41c807102b2b9afa29f48/modules/spotify.amrs) |
+| **SoundCloud Go+ Configuration** | Sets local Go+ plan and playback feature flags for the iOS app. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=soundcloud&ref=85dc221246a0ba7bd9e41c807102b2b9afa29f48) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/85dc221246a0ba7bd9e41c807102b2b9afa29f48/modules/soundcloud.amrs) |
+| **Reddit Ad Block** | Removes supported feed and comment ads, with an optional NSFW prompt setting. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=reddit&ref=85dc221246a0ba7bd9e41c807102b2b9afa29f48) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/85dc221246a0ba7bd9e41c807102b2b9afa29f48/modules/reddit.amrs) |
 
-**[Add all three](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=all&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4)**
+**[Add all four](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=all&ref=85dc221246a0ba7bd9e41c807102b2b9afa29f48)**
 
 Quick-add links use a fixed commit. Refreshing these subscriptions keeps the
 same reviewed code. The import page has no external scripts or analytics.
@@ -76,8 +76,8 @@ in again after first enabling the module to refresh cached customization.
 Enable only one Spotify MITM module; remove older Spotify sets when migrating.
 
 Manual routing subscriptions:
-[Spotify Ads](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/routing/spotify-reject.arrs),
-[Spotify Network](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/routing/spotify-network.arrs).
+[Spotify Ads](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/85dc221246a0ba7bd9e41c807102b2b9afa29f48/routing/spotify-reject.arrs),
+[Spotify Network](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/85dc221246a0ba7bd9e41c807102b2b9afa29f48/routing/spotify-network.arrs).
 
 | Option | Default | Use |
 | --- | --- | --- |
@@ -145,7 +145,7 @@ Readable code: [scripts/reddit.js](scripts/reddit.js).
 ## Versions and integrity
 
 The quick-add links pin all modules to commit
-`3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4`. Scripts and configuration data are
+`85dc221246a0ba7bd9e41c807102b2b9afa29f48`. Scripts and configuration data are
 embedded in each `.amrs` file and are also available in this repository for
 inspection. There are no automatic upstream script updates.
 
