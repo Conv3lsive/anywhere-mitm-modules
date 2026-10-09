@@ -32,14 +32,32 @@ test("quick add creates the documented Anywhere deep link for a pinned module", 
   assert.deepEqual(defaults, ["modules/spotify.amrs", "routing/spotify-reject.arrs", "routing/spotify-network.arrs"].map(path => "https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/" + path));
 });
 
-test("add all carries three MITM modules and two Spotify routing helpers", () => {
+test("add all carries four MITM modules and two Spotify routing helpers", () => {
   const elements = page("?module=all&ref=" + sha);
   const links = new URL(elements.open.href).searchParams.getAll("link");
-  assert.equal(links.length, 5);
-  assert.equal(elements.urls.children.length, 5);
+  assert.equal(links.length, 6);
+  assert.equal(elements.urls.children.length, 6);
+  assert.equal(elements.title.textContent, "Add All Four Modules");
   for (const link of links) {
-    assert.match(link, new RegExp("^https://raw\\.githubusercontent\\.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/(?:modules/(?:youtube|spotify|soundcloud)\\.amrs|routing/spotify-(?:reject|network)\\.arrs)$"));
+    assert.match(link, new RegExp("^https://raw\\.githubusercontent\\.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/(?:modules/(?:youtube|spotify|soundcloud|reddit)\\.amrs|routing/spotify-(?:reject|network)\\.arrs)$"));
   }
+});
+
+test("Reddit imports alone and describes its optional sensitive-content setting", () => {
+  const elements = page("?module=reddit&ref=" + sha);
+  const links = new URL(elements.open.href).searchParams.getAll("link");
+  assert.deepEqual(links, ["https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/" + sha + "/modules/reddit.amrs"]);
+  assert.match(elements.message.textContent, /NSFW prompts is on by default/);
+  assert.match(elements.message.textContent, /No forced translation/);
+});
+
+test("older pinned add-all links keep their three original modules", () => {
+  const old = "3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4";
+  const elements = page("?module=all&ref=" + old);
+  const links = new URL(elements.open.href).searchParams.getAll("link");
+  assert.equal(links.length, 5);
+  assert.equal(links.some(link => link.endsWith("/modules/reddit.amrs")), false);
+  assert.equal(elements.title.textContent, "Add All Three Modules");
 });
 
 test("the earlier working snapshot link remains available at its fixed commit", () => {

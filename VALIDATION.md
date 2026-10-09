@@ -6,7 +6,7 @@ Spotify **9.1.88.2209**. That implementation is now the sole Spotify module,
 published as Spotify Premium. This report covers one user setup, not universal
 compatibility or all Premium features.
 
-Validated locally on 2026-10-08:
+Validated locally on 2026-10-09:
 
 - Deterministic offline build and SHA-256 verification passed.
 - Synthetic JSON/protobuf tests cover Spotify bootstrap/customization account
@@ -19,20 +19,24 @@ Validated locally on 2026-10-08:
   different instants.
 - Promotion preserves the working rules, parameters, configuration data, and
   script behavior. Only names, source paths, and generic log labels changed.
-- Import-page tests cover Spotify alone, all three modules with two routing
-  helpers, the earlier working snapshot link, and rejected inputs/retired IDs.
-- 17 portable tests passed.
+- Reddit tests cover nested ad-node removal, retention of ordinary content,
+  the independent NSFW option, malformed/unchanged/deep response passthrough,
+  host scope, translation-rule removal, and copied script/icon integrity.
+- Import-page tests cover individual Spotify and Reddit imports, all four
+  modules with two routing helpers, earlier three-module and working snapshot
+  links, and rejected inputs/retired IDs.
+- 24 portable tests passed.
 - The official Anywhere MITM parser accepted every generated file and its
   JavaScriptCore syntax check accepted embedded scripts: YouTube has 6 rules
   and 3 parameters; Spotify Premium has 4 rules and 3 parameters; SoundCloud
-  has 1 rule and no parameters.
+  has 1 rule and no parameters; Reddit has 1 rule and 1 parameter.
 - The official routing parser accepted both helpers: Spotify Ads has 1 rejection
   rule with initial REJECT assignment; Spotify Network has 4 rules with initial
   Default assignment.
 
 Parser checks use official rule/parser sources with storage/icon support shims
 in a standalone macOS harness. The assistant has not independently tested a
-live session on the user's device. YouTube and SoundCloud lack live verification
+live session on the user's device. YouTube, SoundCloud, and Reddit lack live verification
 in this session.
 
 Repeat the portable checks:

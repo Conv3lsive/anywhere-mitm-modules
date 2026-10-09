@@ -1,5 +1,5 @@
 {
-  "reviewed_on": "2026-10-08",
+  "reviewed_on": "2026-10-09",
   "sources": [
     {
       "module": "YouTube",
@@ -66,6 +66,15 @@
       "downloaded_sha256": "4561ca939e803448f1bdb21d407580c5c1a60fe2bed7c9f7f811cb9e21870051",
       "downloaded_bytes": 468,
       "reference_only": true
+    },
+    {
+      "module": "Reddit Ad Block",
+      "component": "mitm/Reddit_AD_Anywhere.amrs",
+      "source_url": "https://raw.githubusercontent.com/chikacya/anywhere-rules/15365b2c003aa55c5ce31bbd7311d37b8b2efae4/mitm/Reddit_AD_Anywhere.amrs",
+      "source_commit": "15365b2c003aa55c5ce31bbd7311d37b8b2efae4",
+      "downloaded_sha256": "1a3296b4cf1e5407019ae77199d38183369d703a2b77cd5c5b5b4ebe3f127113",
+      "downloaded_bytes": 17588,
+      "reviewed_on": "2026-10-09"
     }
   ],
   "spotify_configuration": {
@@ -80,5 +89,23 @@
     "spotify_version": "9.1.88.2209",
     "client": "Anywhere",
     "result": "User confirmed that all music now plays with the snapshot-based implementation."
+  },
+  "reddit_components": {
+    "script": {
+      "file": "scripts/reddit.js",
+      "decoded_source_sha256": "5bf7a6d522a7b0939c6c580ca7542adcf9a39efea638f202a264013988051c4c",
+      "bytes": 2926,
+      "copied_unchanged": true
+    },
+    "icon": {
+      "file": "assets/reddit.png",
+      "decoded_source_sha256": "634859bb98f66d78ed3194b5d2e86a5a8cc5cb8610db927b4af4c9f2df5a6915",
+      "bytes": 9856
+    },
+    "module_changes": [
+      "English name, description, and parameter text.",
+      "Removed both x-reddit-translations header rules at user request."
+    ],
+    "upstream_attribution": "QingRex/LoonKissSurge"
   }
 }

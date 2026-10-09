@@ -1,6 +1,7 @@
 # Code review and data flows
 
-Reviewed on **2026-10-08**. Static review and synthetic response tests are
+Core modules reviewed on **2026-10-08**; Reddit reviewed on **2026-10-09**.
+Static review and synthetic response tests are
 supplemented by one user report of normal Spotify playback on 9.1.88.2209 in
 Anywhere. This does not establish compatibility across all devices or versions.
 
@@ -11,6 +12,7 @@ Anywhere. This does not establish compatibility across all devices or versions.
 | YouTube | None. A matching CDN request may receive a redirect within `googlevideo.com`. | Bounded ad-classification identifiers in Anywhere's in-memory store. |
 | Spotify Premium | None. Selected service requests receive local 200/403 responses. | None. |
 | SoundCloud | None. | None. |
+| Reddit Ad Block | None. | None. |
 
 Current scripts process responses locally. They do not send intercepted tokens,
 cookies, lyrics, or response bodies to another service, and do not log response
@@ -53,6 +55,22 @@ tags. New/nested layouts may retain ads. Feed filtering is off by default.
 Local Gabo responses omit fabricated server/timing headers and the original
 HTTP/3 advertisement.
 
+Reddit's source module is pinned to `chikacya/anywhere-rules` commit
+`15365b2c003aa55c5ce31bbd7311d37b8b2efae4`. Its 2,926-byte embedded JavaScript
+is copied byte-for-byte to `scripts/reddit.js` and embedded in this repository's
+subscription. The source credits QingRex/LoonKissSurge for upstream behavior.
+Static inspection found no outbound HTTP calls, token/cookie extraction,
+storage writes, dynamic-code execution, or response logging. The script
+recursively removes selected GraphQL ad objects and optionally changes
+sensitive-content flags. The NSFW prompt setting is on by default and can be
+disabled independently of ad removal.
+
+The source's forced Chinese translation header rules were removed at the
+user's request. The copied icon is an embedded 144×144 PNG; no remote image
+download is needed. JSON parsing and a nesting limit guard unsupported bodies;
+only changed output is serialized and committed. Reddit's live app
+compatibility has not been verified in this session.
+
 **Apply module changes** disables account, service, and feed mutations. The
 MITM host list, cache-validator deletion, and separate ad routing set remain
 active. Disable Spotify Ads as well when comparing interception without
@@ -79,6 +97,8 @@ Anywhere uses hostname suffixes without wildcard exclusions. YouTube's
 `googlevideo.com` entry includes redirector hosts, although its CDN rules exclude
 them. Spotify's `spotify.com` entry covers regional `*-spclient.spotify.com`
 hosts. Only the selected API/ad paths are changed; other requests pass through.
+Reddit's hostname entries also include subdomains through suffix matching;
+its URL gate limits response changes to the two exact GraphQL hosts.
 
 Spotify Ads rejects `aet.spotify.com` and its subdomains. Spotify Network routes
 matching hosts through the user's selected proxy; its `spotify` keyword matches

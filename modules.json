@@ -171,5 +171,37 @@
       }
     ],
     "parameters": []
+  },
+  {
+    "id": "reddit",
+    "name": "Reddit Ad Block",
+    "description": "Removes supported Reddit feed and comment ads, with an optional NSFW prompt setting.",
+    "hostnames": [
+      "gql.reddit.com",
+      "gql-fed.reddit.com"
+    ],
+    "icons": {
+      "light": "assets/reddit.png"
+    },
+    "rules": [
+      {
+        "phase": 1,
+        "pattern": "^https?://gql(?:-fed)?\\.reddit\\.com(?:[/:?]|$)",
+        "scripts": [
+          "scripts/reddit.js"
+        ]
+      }
+    ],
+    "parameters": [
+      [
+        1,
+        0,
+        "disable_nsfw_prompt",
+        "Disable NSFW prompts",
+        "Suppress supported sensitive-content flags. Turn off to retain Reddit defaults.",
+        "true",
+        "[true, false]"
+      ]
+    ]
   }
 ]

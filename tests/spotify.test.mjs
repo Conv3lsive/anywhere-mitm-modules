@@ -148,8 +148,8 @@ test("feed filtering preserves malformed, late, unrelated and short search field
 });
 test("Spotify helper uses its own REJECT set and embedded configuration matches the data file", () => {
   const manifest = JSON.parse(readFileSync(new URL("../modules.json", import.meta.url)));
-  assert.deepEqual(manifest.map(item => item.id).sort(), ["soundcloud", "spotify", "youtube"]);
-  assert.deepEqual(readdirSync(new URL("../modules/", import.meta.url)).filter(name => name.endsWith(".amrs")).sort(), ["soundcloud.amrs", "spotify.amrs", "youtube.amrs"]);
+  assert.deepEqual(manifest.map(item => item.id).sort(), ["reddit", "soundcloud", "spotify", "youtube"]);
+  assert.deepEqual(readdirSync(new URL("../modules/", import.meta.url)).filter(name => name.endsWith(".amrs")).sort(), ["reddit.amrs", "soundcloud.amrs", "spotify.amrs", "youtube.amrs"]);
   const routing = JSON.parse(readFileSync(new URL("../routing.json", import.meta.url))).find(item => item.id === "spotify-reject");
   assert.equal(routing.routing, 2);
   assert.deepEqual(routing.rules, [[2, "aet.spotify.com"]]);

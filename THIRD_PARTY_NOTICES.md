@@ -41,3 +41,18 @@ following third-party material retains its own license and attribution.
   `soundcloud.js`, snapshot `3ac7413fbcf58e2ca3e4a2b9353bccc9e4df6cce`.
 - `scripts/soundcloud.js` implements the observed configuration values with a
   native Anywhere entry point. No original standalone script is vendored.
+
+## Reddit Ad Block script and icon
+
+- Source: [chikacya/anywhere-rules](https://github.com/chikacya/anywhere-rules),
+  `mitm/Reddit_AD_Anywhere.amrs`, snapshot
+  `15365b2c003aa55c5ce31bbd7311d37b8b2efae4`.
+- The source module attributes upstream behavior to
+  [QingRex/LoonKissSurge](https://github.com/QingRex/LoonKissSurge).
+- Its embedded JavaScript is copied unchanged to `scripts/reddit.js`; its
+  embedded icon is copied to `assets/reddit.png`. English module/parameter
+  descriptions replace the original labels. The two translation header rules
+  are omitted at the user's request.
+- This source snapshot contains no license file. The copied script and icon
+  remain third-party material; this repository's own license does not relabel
+  them. Source and component hashes are recorded in `provenance.json`.

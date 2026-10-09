@@ -25,6 +25,10 @@ def artifacts():
             "name = " + module["name"] + "\n",
             "hostname = " + ", ".join(module["hostnames"]) + "\n\n[Rule]\n",
         ]
+        icons = ["icon-" + variant + " = " + base64.b64encode((ROOT / path).read_bytes()).decode() + "\n"
+                 for variant, path in module.get("icons", {}).items()]
+        if icons:
+            lines.insert(3, "".join(icons))
         for rule in module["rules"]:
             if isinstance(rule, dict):
                 bindings = ["const " + name + " = " + json.dumps(json.loads((ROOT / path).read_text()), separators=(",", ":")) + ";"
@@ -52,7 +56,7 @@ def main():
     parser.add_argument("--check", action="store_true", help="verify generated files and hashes without editing")
     args = parser.parse_args()
     generated = dict(artifacts())
-    sources = [ROOT / "modules.json", ROOT / "routing.json", *sorted((ROOT / "scripts").rglob("*.js")), *sorted((ROOT / "data").glob("*.json"))]
+    sources = [ROOT / "modules.json", ROOT / "routing.json", *sorted((ROOT / "scripts").rglob("*.js")), *sorted((ROOT / "data").glob("*.json")), *sorted((ROOT / "assets").glob("*.png"))]
     hashed = {**{path: path.read_bytes() for path in sources}, **generated}
     sums = "".join(hashlib.sha256(data).hexdigest() + "  " + str(path.relative_to(ROOT)) + "\n"
                    for path, data in sorted(hashed.items()))

@@ -1,6 +1,6 @@
 # Anywhere MITM Modules
 
-Three self-contained MITM modules for YouTube, Spotify, and SoundCloud.
+Four self-contained MITM modules for YouTube, Spotify, SoundCloud, and Reddit.
 Readable JavaScript lives in [`scripts/`](scripts/); the `.amrs` subscriptions
 embed the code, so they never download scripts from another repository.
 
@@ -14,6 +14,7 @@ Install [Anywhere](https://github.com/NodePassProject/Anywhere), then open an
 | **YouTube Ad Block & Playback** | Removes supported ads; enables picture-in-picture and background playback flags. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=youtube&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/modules/youtube.amrs) |
 | **Spotify Premium** | Enables Premium playback controls, removes trial restrictions, and blocks selected ads. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=spotify&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/modules/spotify.amrs) |
 | **SoundCloud Go+ Configuration** | Sets local Go+ plan and playback feature flags for the iOS app. | [Add](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=soundcloud&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4) | [Copy URL](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4/modules/soundcloud.amrs) |
+| **Reddit Ad Block** | Removes supported feed and comment ads, with an optional NSFW prompt setting. | Release link below | [View module](modules/reddit.amrs) |
 
 **[Add all three](https://conv3lsive.github.io/anywhere-mitm-modules/import.html?module=all&ref=3c51a7ec2d58d35a6ab1909750e2a4bb39801cd4)**
 
@@ -119,6 +120,28 @@ ad-free audio, and high-quality audio flags. It makes no extra network requests.
 These are local configuration changes. They do not grant a server-side
 subscription or guarantee access to paid tracks, downloads, or audio quality.
 
+### Reddit Ad Block
+
+Removes supported advertising nodes from Reddit's GraphQL JSON responses,
+including feed ad posts, ad metadata/payload nodes, and comment-page ads.
+Ordinary content is retained. All processing is local; the script makes no
+extra network requests and stores no response data.
+
+- **Disable NSFW prompts:** enabled by default, matching the source module.
+  Turn off to keep Reddit's normal sensitive-content flags and prompts. This
+  setting is independent of ad removal.
+- **Forced translation:** disabled. The source's two request-header rules for
+  Simplified Chinese translation are omitted; the JavaScript is copied unchanged.
+
+Enable the MITM module and restart Reddit. Rewrites are scoped to `gql.reddit.com`
+and `gql-fed.reddit.com`; no additional routing set is required. Use Anywhere's
+QUIC Automatic mode if HTTP/3 prevents interception.
+
+Malformed JSON, unchanged content, and responses beyond the script's nesting
+limit retain their original bytes. App/schema changes can affect ad removal;
+this module has synthetic validation but no live Reddit verification yet.
+Readable code: [scripts/reddit.js](scripts/reddit.js).
+
 ## Versions and integrity
 
 The quick-add links pin all modules to commit
@@ -133,6 +156,7 @@ For subscriptions that follow this repository's future changes, use:
 - [Spotify Ads — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/routing/spotify-reject.arrs)
 - [Spotify Network — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/routing/spotify-network.arrs)
 - [SoundCloud — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/soundcloud.amrs)
+- [Reddit Ad Block — latest](https://raw.githubusercontent.com/Conv3lsive/anywhere-mitm-modules/main/modules/reddit.amrs)
 
 Those `main` links change when this repository is updated. Review changes before
 switching from a pinned version. [SECURITY.md](SECURITY.md) records the code review

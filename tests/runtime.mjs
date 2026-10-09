@@ -63,7 +63,7 @@ export const str = (field, value) => ({ field, wire: 2, value: utf8.encode(value
 export const nested = (field, entries) => ({ field, wire: 2, value: protobuf.encode(entries) });
 
 export function runtime(id, parameters = {}, handler, phase = 1, scriptFile) {
-  const calls = [], logs = [], responses = [], store = new Map();
+  const calls = [], logs = [], responses = [], directives = [], store = new Map();
   const Anywhere = {
     codec: { utf8, protobuf, hex: { encode: bytes => Buffer.from(bytes).toString("hex") } },
     crypto: { md5: bytes => new Uint8Array(createHash("md5").update(typeof bytes === "string" ? bytes : Buffer.from(bytes)).digest()), randomBytes: n => new Uint8Array(randomBytes(n)) },
@@ -71,6 +71,7 @@ export function runtime(id, parameters = {}, handler, phase = 1, scriptFile) {
     store: { getString: name => store.get(name), set: (name, value) => store.set(name, value) },
     log: { warning: message => logs.push(message) },
     respond: result => responses.push(result),
+    done: () => directives.push("done"),
     http: { async post(url, options) {
       calls.push({ url, options });
       if (!handler) throw Error("Unexpected outbound request");
@@ -86,7 +87,7 @@ export function runtime(id, parameters = {}, handler, phase = 1, scriptFile) {
   const source = rule.scripts.map(path => readFileSync(new URL("../" + path, import.meta.url), "utf8")).join("\n");
   vm.runInContext(source, context, { timeout: 3000 });
   return {
-    calls, logs, responses, store,
+    calls, logs, responses, directives, store,
     async run(ctx) {
       context.ctx = ctx;
       await vm.runInContext("process(ctx)", context, { timeout: 3000 });
